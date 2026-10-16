@@ -1,4 +1,17 @@
 export type Point = readonly [number, number];
+const MAX_RENDER_PIXELS = 3840 * 2160;
+/** Full 4K at 1×, or a 4K backing buffer for a 1920×1080 Retina viewport. */
+export function renderSize(width: number, height: number, pixelRatio: number) {
+  const ratio = Math.min(
+    Math.max(pixelRatio, 1),
+    2,
+    Math.sqrt(MAX_RENDER_PIXELS / (width * height)),
+  );
+  return {
+    width: Math.max(1, Math.floor(width * ratio)),
+    height: Math.max(1, Math.floor(height * ratio)),
+  };
+}
 // The visible pool surface, inset from its coping and vertical stone wall.
 // Coordinates refer to the original 1672 × 941 photograph.
 export const POOL: Point[] = [

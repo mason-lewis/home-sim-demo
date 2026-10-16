@@ -23,7 +23,7 @@ npm run preview
 
 Every fresh page load starts in morning light, then cycles through daylight, dusk, and night over 80 seconds. Each scene holds for 3 seconds and blends into the next for 17 seconds. Timing is independent of the visitor’s timezone. The cycle pauses when the tab is hidden and resumes without jumping.
 
-Water, tree canopy, and foreground planting move continuously through one WebGL renderer. A lossless foliage matte combines hand-traced regions, explicit stone exclusions, and daylight colour separation. A separate movement-permission channel protects both ends of each displaced sample, so moving leaf detail cannot pull the terrace corner or foreground rocks into the effect. Crossing surface waves and random ambient ripple events keep the pool active without pointer input. Variable gusts drive separate damped springs for canopy branches, shrub stems, and secondary branches; small leaf flutter is layered over coherent sway. Pointer movement adds expanding ripples with at least three times the strength of ambient ripple events, or local foliage movement; these disturbances decay after departure. The residence itself remains still. This is an illustrative image effect, not a live model or physically simulated environment.
+Water, tree canopy, and foreground planting move continuously through one WebGL renderer. A lossless foliage matte combines hand-traced regions, explicit stone exclusions, and daylight colour separation. A separate movement-permission channel protects both ends of each displaced sample, so moving leaf detail cannot pull the terrace corner or foreground rocks into the effect. Crossing surface waves and random ambient ripple events keep the pool active without pointer input. Variable gusts drive separate damped springs for canopy branches, shrub stems, and secondary branches; small leaf flutter is layered over coherent sway. Pointer movement affects only the water, adding expanding ripples with at least three times the strength of ambient ripple events. These disturbances decay after departure. Trees and shrubs respond only to the natural wind field. The residence itself remains still. This is an illustrative image effect, not a live model or physically simulated environment.
 
 The landing page uses a light, text-side gradient. The viewer keeps the image bright, with the unavailable message in a compact panel instead of darkening the entire frame.
 
@@ -34,6 +34,12 @@ The pause control stops both lighting and nature motion. Reduced-motion preferen
 - Nature motion wrapper: `src/NatureMotion.tsx`
 - Mask, wave field, wind, and pointer response: `src/nature/` and `public/images/nature-mask.webp`
 - Branding and future stream URL: `src/config.ts`
+
+## Large displays and footer
+
+The interface scales its type, controls, and spacing up to a 3840 × 2160 viewport. The animated canvas supports a native 4K buffer, including a 1920 × 1080 CSS viewport at 2× pixel density. A 4K pixel budget bounds GPU work on larger or denser displays. The current photographic source assets remain 1672 × 941; the 4K layout and canvas do not create additional photographic detail.
+
+Both routes include a compact copyright footer. Set `copyrightOwner` and an intentionally public `contactEmail` in `src/config.ts`. Until an address is provided, the footer shows “Enquiries · Email coming soon” without a fake email link. The copyright year updates automatically.
 
 ## Future Vagon connection
 
@@ -47,7 +53,7 @@ The deployment workflow builds and tests `main`, then publishes `dist` using Git
 
 No backend, database, user accounts, or secrets are required.
 
-The demo viewer fills the available dynamic viewport height, with no fixed minimum viewer height or separate footer. It has no page scroll in portrait or landscape layouts.
+The demo viewer fills the available dynamic viewport height, with no fixed minimum viewer height. Its compact footer shares the viewport with the viewer. It has no page scroll in portrait or landscape layouts.
 
 ## Assets
 

@@ -26,8 +26,6 @@ export class NatureSimulation {
   // Canopy, flexible shrub stems, and secondary branches have different inertia.
   sway = [0.2, 0.15, 0.25];
   private swayVelocity = [0, 0, 0];
-  pointer: Point = [-2, -2];
-  pointerForce = 0;
   ripples: Ripple[] = [];
   private random: () => number;
   private targetWind = 0.45;
@@ -79,7 +77,6 @@ export class NatureSimulation {
         this.swayVelocity[branch] += acceleration * step;
         this.sway[branch] += this.swayVelocity[branch] * step;
       }
-      this.pointerForce *= Math.exp(-step * 2.8);
       if (this.time >= this.nextRipple) {
         this.ambientRipple(this.time);
         this.nextRipple = this.time + 0.65 + this.random() * 1.15;
@@ -90,6 +87,10 @@ export class NatureSimulation {
     );
   }
   disturb(point: Point) {
+    if (!insidePolygon(point, POOL)) {
+      this.leave();
+      return;
+    }
     const dt = Math.max(0.016, this.time - this.lastPointerTime);
     const distance = this.lastPointer
       ? Math.hypot(
@@ -97,16 +98,7 @@ export class NatureSimulation {
           point[1] - this.lastPointer[1],
         )
       : 0.012;
-    this.pointer = point;
-    this.pointerForce = Math.min(
-      1,
-      this.pointerForce + Math.min(distance / dt, 2) * 0.32,
-    );
-    if (
-      insidePolygon(point, POOL) &&
-      distance > 0.001 &&
-      this.time - this.lastInteractionRipple > 0.12
-    ) {
+    if (distance > 0.001 && this.time - this.lastInteractionRipple > 0.12) {
       // A pointer stroke displaces substantially more water than a wind ripple.
       // Velocity adds energy without making a fast pass unbounded.
       this.addRipple(

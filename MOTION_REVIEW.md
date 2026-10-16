@@ -7,7 +7,7 @@ The motion was revised twice, then recorded again for final review. The initial 
 - **First revision:** stronger ambient displacement, coordinated leaf-cluster movement, bending shrub tips, and stronger crossing water waves. Sampling the displaced foliage silhouette avoids pinning each leaf edge to its original position; the follow-up below adds a separate rigid-surface guard.
 - **Second revision:** replace the large sine-driven sway with three damped spring responses for the canopy, shrub stems, and secondary branches. They respond to the same varying wind with different inertia, lag, and recoil. Small leaf flutter remains separate from the large movement.
 - **Water:** raise the crossing-wave displacement by about 50–65%, increase ripple displacement modestly, and attenuate samples near the pool boundary. Pointer impulses continue to spread and fade; ambient movement never depends on hovering.
-- **Cursor:** keep the extra foliage response smaller than the ambient motion, so pointing adds a local disturbance rather than switching the wind on.
+- **Cursor (initial calibration):** keep the extra foliage response smaller than the ambient motion. This response was later removed; see the current pointer behavior below.
 
 ## Video checks
 
@@ -41,3 +41,7 @@ The final fixed-daylight recording was decoded at half-second intervals. Small t
 Pointer strokes now create impulses with strength 2.8–4.6, compared with ambient events at 0.45–0.85. Fast strokes add more energy within that bound. A separate twelve-second recording uses a repeatable water stroke from seconds 3–8, followed by four seconds of decay. Ambient wave motion and random ripples continue without input.
 
 The landing-page gradient was also reduced and narrowed toward the text. The viewer has only a 2% image tint; a compact message panel replaces the previous full-frame 46–88% dark overlay.
+
+## Current pointer behavior
+
+Cursor interaction with foliage was subsequently removed at the user's request. Trees, leaves, and shrubs now use only the ambient wind springs and flutter. The water keeps its stronger movement-triggered cursor ripples and continuous ambient waves. No pointer-position or pointer-force uniforms remain in the foliage shader.

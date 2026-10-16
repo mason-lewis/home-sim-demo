@@ -10,6 +10,7 @@ import {
   POOL,
   coverTransform,
   imagePoint,
+  renderSize,
 } from "../src/nature/geometry";
 
 test("pool hits exclude the stone wall, coping, terrace, and residence", () => {
@@ -68,17 +69,42 @@ test("pointer contact creates a localized ripple which decays after departure", 
           .map((r) => r.strength),
       ),
   );
-  expect(simulation.pointerForce).toBeGreaterThan(0);
   simulation.leave();
   simulation.advance(6);
   expect(simulation.ripples).not.toContain(contact);
-  expect(simulation.pointerForce).toBeLessThan(0.0001);
+  expect(simulation.ripples.every((r) => r.strength <= 0.85)).toBe(true);
 });
 test("pointer movement on the residence never creates a water ripple", () => {
   const simulation = new NatureSimulation(2);
   const before = simulation.ripples.length;
   simulation.disturb([0.7, 0.4]);
   expect(simulation.ripples).toHaveLength(before);
+});
+test("pointer strokes affect the water without changing ambient wind or branches", () => {
+  const ambient = new NatureSimulation(42);
+  const interactive = new NatureSimulation(42);
+  for (let frame = 0; frame < 180; frame++) {
+    ambient.advance(1 / 30);
+    interactive.advance(1 / 30);
+    interactive.disturb(
+      frame < 60
+        ? [0.1, 0.9]
+        : frame < 120
+          ? [0.7, 0.1]
+          : [0.8 + (frame % 10) * 0.002, 0.8],
+    );
+    expect(interactive.sway).toEqual(ambient.sway);
+    expect(interactive.wind).toBe(ambient.wind);
+    if (frame < 120) expect(interactive.ripples).toEqual(ambient.ripples);
+  }
+  expect(interactive.ripples.some((r) => r.strength >= 2.8)).toBe(true);
+});
+test("canvas sizing supports native and Retina 4K without exceeding its pixel budget", () => {
+  expect(renderSize(3840, 2160, 1)).toEqual({ width: 3840, height: 2160 });
+  expect(renderSize(1920, 1080, 2)).toEqual({ width: 3840, height: 2160 });
+  expect(renderSize(3840, 2160, 2)).toEqual({ width: 3840, height: 2160 });
+  const wide = renderSize(5120, 2160, 2);
+  expect(wide.width * wide.height).toBeLessThanOrEqual(3840 * 2160);
 });
 test("pointer coordinates map to the same scene in portrait and landscape crops", () => {
   for (const size of [
@@ -171,5 +197,4 @@ test("ambient branch springs move independently with bounded, continuous recoil"
     expect(Math.max(...values) - Math.min(...values)).toBeGreaterThan(0.5),
   );
   expect(ranges[0]).not.toEqual(ranges[1]);
-  expect(simulation.pointerForce).toBe(0);
 });

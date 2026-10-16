@@ -1,5 +1,5 @@
 import { cycleOrder, type Atmosphere, type Lighting } from "../lighting";
-import { coverTransform, imagePoint } from "./geometry";
+import { coverTransform, imagePoint, renderSize } from "./geometry";
 import { NatureSimulation } from "./simulation";
 import { fragmentShader, vertexShader } from "./shaders";
 
@@ -79,8 +79,6 @@ export function createNatureRenderer(config: RendererConfig) {
         "sway",
         "scale",
         "offset",
-        "pointer",
-        "pointerForce",
         "ripples[0]",
       ].map((name) => [name, gl.getUniformLocation(program!, name)]),
     );
@@ -176,9 +174,11 @@ export function createNatureRenderer(config: RendererConfig) {
     if (!state.paused) simulation.advance(dt);
     const rect = canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    const dpr = Math.min(devicePixelRatio, 1.35);
-    const width = Math.round(rect.width * dpr),
-      height = Math.round(rect.height * dpr);
+    const { width, height } = renderSize(
+      rect.width,
+      rect.height,
+      devicePixelRatio,
+    );
     const resized = canvas.width !== width || canvas.height !== height;
     if (resized) {
       canvas.width = width;
@@ -213,12 +213,6 @@ export function createNatureRenderer(config: RendererConfig) {
     );
     gl.uniform2f(uniforms.scale, cover.scale[0], cover.scale[1]);
     gl.uniform2f(uniforms.offset, cover.offset[0], cover.offset[1]);
-    gl.uniform2f(
-      uniforms.pointer,
-      simulation.pointer[0],
-      simulation.pointer[1],
-    );
-    gl.uniform1f(uniforms.pointerForce, simulation.pointerForce);
     gl.uniform4fv(uniforms["ripples[0]"], simulation.rippleUniforms());
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     if (!announced) {

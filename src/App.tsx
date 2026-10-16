@@ -113,6 +113,24 @@ function MotionControl({ controls }: { controls: AtmosphereControls }) {
     </button>
   );
 }
+function SiteFooter() {
+  return (
+    <footer className="site-footer" aria-label="Site information">
+      <span>
+        © {new Date().getFullYear()} {siteConfig.copyrightOwner}.
+        <span className="copyright-rights"> All rights reserved.</span>
+      </span>
+      {siteConfig.contactEmail ? (
+        <a href={`mailto:${siteConfig.contactEmail}`}>
+          {siteConfig.contactEmail}{" "}
+          <ArrowUpRight aria-hidden="true" size={12} />
+        </a>
+      ) : (
+        <span className="footer-contact">Enquiries · Email coming soon</span>
+      )}
+    </footer>
+  );
+}
 function Landing({ controls }: { controls: AtmosphereControls }) {
   const { atmosphere, paused } = controls;
   const { lighting } = atmosphere;
@@ -157,16 +175,19 @@ function Landing({ controls }: { controls: AtmosphereControls }) {
             Architectural walkthrough · Demo preview
           </span>
         </div>
-        <div className="hero-bottom">
-          <span className="concept-label">
-            <span className="status-dot" />
-            The hillside residence <span>/</span> Illustrative concept
-          </span>
-          <span className="atmosphere-controls">
-            <TimeLabel lighting={lighting} />
-            <MotionControl controls={controls} />
-          </span>
-          <span className="entry-note">A home, before it’s built.</span>
+        <div className="hero-footer">
+          <div className="hero-bottom">
+            <span className="concept-label">
+              <span className="status-dot" />
+              The hillside residence <span>/</span> Illustrative concept
+            </span>
+            <span className="atmosphere-controls">
+              <TimeLabel lighting={lighting} />
+              <MotionControl controls={controls} />
+            </span>
+            <span className="entry-note">A home, before it’s built.</span>
+          </div>
+          <SiteFooter />
         </div>
       </main>
     </>
@@ -278,13 +299,16 @@ function Simulation({ controls }: { controls: AtmosphereControls }) {
             {fullscreenError}
           </p>
         )}
-        <div className="viewer-notes">
-          <span>Illustrative concept residence</span>
-          <span>
-            {siteConfig.streamUrl
-              ? "Interactive walkthrough"
-              : "Live walkthrough coming soon"}
-          </span>
+        <div className="simulation-footer">
+          <div className="viewer-notes">
+            <span>Illustrative concept residence</span>
+            <span>
+              {siteConfig.streamUrl
+                ? "Interactive walkthrough"
+                : "Live walkthrough coming soon"}
+            </span>
+          </div>
+          <SiteFooter />
         </div>
       </main>
     </div>
