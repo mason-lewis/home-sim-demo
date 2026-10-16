@@ -5,7 +5,7 @@ export const lightingLabels: Record<Lighting, string> = {
   dusk: "At dusk",
   night: "After dark",
 };
-export const cycleOrder: Lighting[] = ["dusk", "night", "morning", "day"];
+export const cycleOrder: Lighting[] = ["morning", "day", "dusk", "night"];
 export const SCENE_DURATION = 20_000;
 export const HOLD_DURATION = 3_000;
 export const CYCLE_DURATION = SCENE_DURATION * cycleOrder.length;

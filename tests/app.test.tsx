@@ -54,15 +54,15 @@ const advance = (ms: number) => act(() => vi.advanceTimersByTime(ms));
 
 test("cycle advances, pauses, and resumes without jumping", () => {
   act(() => root.render(<Probe />));
-  expect(container.querySelector("output")?.textContent).toBe("dusk");
+  expect(container.querySelector("output")?.textContent).toBe("morning");
   advance(20_000);
-  expect(container.querySelector("output")?.textContent).toBe("night");
+  expect(container.querySelector("output")?.textContent).toBe("day");
   act(() => container.querySelector("button")!.click());
   advance(80_000);
-  expect(container.querySelector("output")?.textContent).toBe("night");
+  expect(container.querySelector("output")?.textContent).toBe("day");
   act(() => container.querySelector("button")!.click());
   advance(20_000);
-  expect(container.querySelector("output")?.textContent).toBe("morning");
+  expect(container.querySelector("output")?.textContent).toBe("dusk");
 });
 test("hidden tabs pause the cycle and resume from the same moment", () => {
   act(() => root.render(<Probe />));
@@ -73,24 +73,24 @@ test("hidden tabs pause the cycle and resume from the same moment", () => {
   });
   act(() => document.dispatchEvent(new Event("visibilitychange")));
   advance(600_000);
-  expect(container.querySelector("output")?.textContent).toBe("night");
+  expect(container.querySelector("output")?.textContent).toBe("day");
   Object.defineProperty(document, "hidden", {
     configurable: true,
     value: false,
   });
   act(() => document.dispatchEvent(new Event("visibilitychange")));
   advance(20_000);
-  expect(container.querySelector("output")?.textContent).toBe("morning");
+  expect(container.querySelector("output")?.textContent).toBe("dusk");
 });
 test("reduced-motion preference freezes the atmosphere and responds to changes", () => {
   reduced = true;
   act(() => root.render(<Probe />));
   advance(80_000);
-  expect(container.querySelector("output")?.textContent).toBe("dusk");
+  expect(container.querySelector("output")?.textContent).toBe("morning");
   reduced = false;
   act(() => preferenceListeners.forEach((listener) => listener()));
   advance(20_000);
-  expect(container.querySelector("output")?.textContent).toBe("night");
+  expect(container.querySelector("output")?.textContent).toBe("day");
 });
 test("simulation route has a clear unavailable state and no iframe", () => {
   reduced = true;
@@ -99,6 +99,9 @@ test("simulation route has a clear unavailable state and no iframe", () => {
   expect(container.textContent).toContain("Walkthroughcoming soon.");
   expect(container.querySelector("iframe")).toBeNull();
   expect(container.textContent).toContain("Stream not connected");
+  expect(container.querySelector(".time-label")?.textContent).toContain(
+    "Morning light",
+  );
   expect(document.title).toBe("The walkthrough — FORM / SPACE");
   act(() => {
     window.history.replaceState(null, "", "/#/");
@@ -106,5 +109,8 @@ test("simulation route has a clear unavailable state and no iframe", () => {
   });
   expect(container.querySelector("#hero-title")?.textContent).toContain(
     "step inside.",
+  );
+  expect(container.querySelector(".time-label")?.textContent).toContain(
+    "Morning light",
   );
 });

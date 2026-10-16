@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { Atmosphere, Lighting } from "./lighting";
+import { cycleOrder, type Atmosphere, type Lighting } from "./lighting";
 import { createNatureRenderer } from "./nature/renderer";
 import { NatureSimulation } from "./nature/simulation";
 interface Props {
@@ -36,7 +36,7 @@ export function NatureMotion({ atmosphere, paused, asset }: Props) {
     if (!canvas.current || reduced) return;
     simulation.current ??= new NatureSimulation();
     const images = Object.fromEntries(
-      (["dusk", "night", "morning", "day"] as Lighting[]).map((scene) => [
+      cycleOrder.map((scene) => [
         scene,
         asset(`residence-${scene}${mobile ? "-mobile" : ""}.webp`),
       ]),

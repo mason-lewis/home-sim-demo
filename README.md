@@ -21,7 +21,7 @@ npm run preview
 
 ## Atmosphere
 
-The residence cycles automatically through dusk, night, morning, and daylight over 80 seconds. Each scene holds for 3 seconds and blends into the next for 17 seconds. Timing is independent of the visitor’s timezone. The cycle pauses when the tab is hidden and resumes without jumping.
+Every fresh page load starts in morning light, then cycles through daylight, dusk, and night over 80 seconds. Each scene holds for 3 seconds and blends into the next for 17 seconds. Timing is independent of the visitor’s timezone. The cycle pauses when the tab is hidden and resumes without jumping.
 
 Water, tree canopy, and foreground planting move continuously through one WebGL renderer. A lossless foliage matte combines hand-traced regions, explicit stone exclusions, and daylight colour separation. A separate movement-permission channel protects both ends of each displaced sample, so moving leaf detail cannot pull the terrace corner or foreground rocks into the effect. Crossing surface waves and random ambient ripple events keep the pool active without pointer input. Variable gusts drive separate damped springs for canopy branches, shrub stems, and secondary branches; small leaf flutter is layered over coherent sway. Pointer movement adds expanding ripples with at least three times the strength of ambient ripple events, or local foliage movement; these disturbances decay after departure. The residence itself remains still. This is an illustrative image effect, not a live model or physically simulated environment.
 

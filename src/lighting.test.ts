@@ -9,14 +9,17 @@ import {
 test("begins changing after three seconds and reaches the next scene at twenty", () => {
   assert.equal(HOLD_DURATION, 3_000);
   assert.equal(SCENE_DURATION, 20_000);
+  assert.equal(getAtmosphere(0).current, "morning");
+  assert.equal(getAtmosphere(0).next, "day");
+  assert.equal(getAtmosphere(0).blend, 0);
   assert.equal(getAtmosphere(2_999).blend, 0);
   assert.equal(getAtmosphere(11_500).blend, 0.5);
-  assert.equal(getAtmosphere(20_000).lighting, "night");
+  assert.equal(getAtmosphere(20_000).lighting, "day");
 });
 test("completes all four scenes in eighty seconds without a seam", () => {
   assert.equal(CYCLE_DURATION, 80_000);
-  assert.equal(getAtmosphere(40_000).lighting, "morning");
-  assert.equal(getAtmosphere(60_000).lighting, "day");
+  assert.equal(getAtmosphere(40_000).lighting, "dusk");
+  assert.equal(getAtmosphere(60_000).lighting, "night");
   assert.deepEqual(
     getAtmosphere(CYCLE_DURATION * 5 + 11_500),
     getAtmosphere(11_500),

@@ -1,4 +1,4 @@
-import type { Atmosphere, Lighting } from "../lighting";
+import { cycleOrder, type Atmosphere, type Lighting } from "../lighting";
 import { coverTransform, imagePoint } from "./geometry";
 import { NatureSimulation } from "./simulation";
 import { fragmentShader, vertexShader } from "./shaders";
@@ -131,9 +131,9 @@ export function createNatureRenderer(config: RendererConfig) {
     { texture: WebGLTexture; width: number; height: number }
   >;
   let mask: WebGLTexture;
-  let displayedScene: Lighting = "dusk",
+  let displayedScene: Lighting = cycleOrder[0],
     displayedBlend = 0;
-  const order: Lighting[] = ["dusk", "night", "morning", "day"];
+  const order = cycleOrder;
   Promise.all([
     ...order.map((scene) => load(config.images[scene])),
     load(config.mask),
