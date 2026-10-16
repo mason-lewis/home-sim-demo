@@ -21,6 +21,7 @@ import "@fontsource/manrope/latin-400.css";
 import "@fontsource/manrope/latin-500.css";
 import "./styles.css";
 import { NatureMotion } from "./NatureMotion";
+import { StreamAccess } from "./StreamAccess";
 
 const asset = (name: string) => `${import.meta.env.BASE_URL}images/${name}`;
 const scenes: Lighting[] = ["morning", "day", "dusk", "night"];
@@ -193,6 +194,7 @@ function Simulation({ controls }: { controls: AtmosphereControls }) {
   const { lighting } = atmosphere;
   const [fullscreen, setFullscreen] = useState(false);
   const [fullscreenError, setFullscreenError] = useState("");
+  const [streamUnlocked, setStreamUnlocked] = useState(false);
   useEffect(() => {
     const update = () => setFullscreen(Boolean(document.fullscreenElement));
     document.addEventListener("fullscreenchange", update);
@@ -223,22 +225,32 @@ function Simulation({ controls }: { controls: AtmosphereControls }) {
               The <em>walkthrough.</em>
             </h1>
           </div>
-          <span className="atmosphere-controls">
-            <TimeLabel lighting={lighting} />
-            <MotionControl controls={controls} />
-          </span>
+          {!streamUnlocked && (
+            <span className="atmosphere-controls">
+              <TimeLabel lighting={lighting} />
+              <MotionControl controls={controls} />
+            </span>
+          )}
         </div>
         <section
           id="viewer"
           className="viewer"
           aria-label="Architectural walkthrough viewer"
         >
-          {siteConfig.streamUrl ? (
+          {siteConfig.streamUrl && streamUnlocked ? (
             <iframe
+              id="vagonFrame"
               title="Interactive home walkthrough"
               src={siteConfig.streamUrl}
+              allow="microphone *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *;"
               allowFullScreen
             />
+          ) : siteConfig.streamUrl ? (
+            <>
+              <Scene atmosphere={atmosphere} paused={paused} />
+              <div className="viewer-shade" />
+              <StreamAccess onUnlock={() => setStreamUnlocked(true)} />
+            </>
           ) : (
             <>
               <Scene atmosphere={atmosphere} paused={paused} />
@@ -270,7 +282,9 @@ function Simulation({ controls }: { controls: AtmosphereControls }) {
             <span>
               <span className="status-dot" />
               {siteConfig.streamUrl
-                ? "Interactive walkthrough"
+                ? streamUnlocked
+                  ? "Interactive walkthrough"
+                  : "Password required"
                 : "Preview / Stream not connected"}
             </span>
             {typeof document.documentElement.requestFullscreen ===

@@ -2,7 +2,7 @@
 
 A cinematic, single-screen entry to an architectural walkthrough demo. Built with React, Vite, and TypeScript; runs entirely as a static site.
 
-The primary action opens the demo viewer at `#/simulation`. Until a public stream is connected, the viewer clearly says “Walkthrough coming soon.” No stream is requested and no iframe is created in that state.
+The primary action opens a password screen at `#/simulation`. The Vagon iframe is created only after the visitor submits the correct password. Returning home or refreshing locks the viewer again. If `streamUrl` is cleared, the viewer shows “Walkthrough coming soon.”
 
 ## Develop
 
@@ -27,13 +27,13 @@ Water, tree canopy, and foreground planting move continuously through one WebGL 
 
 The landing page uses a light, text-side gradient. The viewer keeps the image bright, with the unavailable message in a compact panel instead of darkening the entire frame.
 
-The pause control stops both lighting and nature motion. Reduced-motion preferences disable automatic motion. Static images remain available if WebGL is unavailable. Fonts and optimized responsive images are served locally; there are no analytics, location requests, or external runtime assets.
+The pause control stops both lighting and nature motion in the illustrative scene; it does not control the Vagon stream. Reduced-motion preferences disable automatic scene motion. Static images remain available if WebGL is unavailable. Fonts and optimized responsive images are served locally; the interactive walkthrough loads from Vagon.
 
 - Scene timing and blending: `src/lighting.ts`
 - Cycle state, visibility, and reduced motion: `src/useAtmosphere.ts`
 - Nature motion wrapper: `src/NatureMotion.tsx`
 - Mask, wave field, wind, and pointer response: `src/nature/` and `public/images/nature-mask.webp`
-- Branding and future stream URL: `src/config.ts`
+- Branding and stream URL: `src/config.ts`
 
 ## Large displays and footer
 
@@ -41,9 +41,13 @@ The interface scales its type, controls, and spacing up to a 3840 × 2160 viewpo
 
 Both routes include a compact copyright footer. Set `copyrightOwner` and an intentionally public `contactEmail` in `src/config.ts`. Until an address is provided, the footer shows “Enquiries · Email coming soon” without a fake email link. The copyright year updates automatically.
 
-## Future Vagon connection
+## Vagon connection
 
-Set `streamUrl` in `src/config.ts` only to an intentionally public HTTPS embed URL once the stream is ready. Verify the provider’s embedding requirements, allowed origins, fullscreen, pointer-lock, and other required iframe permissions before connecting it. No provider-specific integration is configured in this version.
+The supplied public HTTPS embed URL is configured as `streamUrl` in `src/config.ts`. The iframe uses the `vagonFrame` ID and allows microphone, clipboard read/write, encrypted media, and fullscreen, as specified in the supplied embed. Stream availability and any provider-side access or allowed-origin settings are managed in Vagon.
+
+The site password gate prevents accidental stream starts and casual access through this page. It stores a SHA-256 password digest in `streamPasswordHash`, never the plain password, and keeps unlock state only in memory. This is a browser-side convenience gate: the public stream URL and digest can be inspected, and short passwords can be guessed. Enable [Vagon Password Protection](https://docs.vagon.io/streams/configurations/visitor-data-collection) to require a password when someone visits the stream directly.
+
+To change the site password, generate its SHA-256 hex digest locally and replace `streamPasswordHash` in `src/config.ts`, then rebuild and deploy. Do not commit the plain password or include it in a test fixture. Password checking requires HTTPS or localhost.
 
 All frontend configuration is public. Never add API keys, access tokens, signed/private model URLs, client files, or proprietary simulation source to this repository. Any future protected session creation must happen outside this static frontend.
 
