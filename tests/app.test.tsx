@@ -55,18 +55,18 @@ const advance = (ms: number) => act(() => vi.advanceTimersByTime(ms));
 test("cycle advances, pauses, and resumes without jumping", () => {
   act(() => root.render(<Probe />));
   expect(container.querySelector("output")?.textContent).toBe("dusk");
-  advance(60_000);
+  advance(20_000);
   expect(container.querySelector("output")?.textContent).toBe("night");
   act(() => container.querySelector("button")!.click());
-  advance(120_000);
+  advance(80_000);
   expect(container.querySelector("output")?.textContent).toBe("night");
   act(() => container.querySelector("button")!.click());
-  advance(60_000);
+  advance(20_000);
   expect(container.querySelector("output")?.textContent).toBe("morning");
 });
 test("hidden tabs pause the cycle and resume from the same moment", () => {
   act(() => root.render(<Probe />));
-  advance(60_000);
+  advance(20_000);
   Object.defineProperty(document, "hidden", {
     configurable: true,
     value: true,
@@ -79,17 +79,17 @@ test("hidden tabs pause the cycle and resume from the same moment", () => {
     value: false,
   });
   act(() => document.dispatchEvent(new Event("visibilitychange")));
-  advance(60_000);
+  advance(20_000);
   expect(container.querySelector("output")?.textContent).toBe("morning");
 });
 test("reduced-motion preference freezes the atmosphere and responds to changes", () => {
   reduced = true;
   act(() => root.render(<Probe />));
-  advance(240_000);
+  advance(80_000);
   expect(container.querySelector("output")?.textContent).toBe("dusk");
   reduced = false;
   act(() => preferenceListeners.forEach((listener) => listener()));
-  advance(60_000);
+  advance(20_000);
   expect(container.querySelector("output")?.textContent).toBe("night");
 });
 test("simulation route has a clear unavailable state and no iframe", () => {

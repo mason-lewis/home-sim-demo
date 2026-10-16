@@ -21,15 +21,16 @@ npm run preview
 
 ## Atmosphere
 
-The residence cycles automatically through dusk, night, morning, and daylight over four minutes. Each scene holds for 15 seconds and blends into the next for 45 seconds. Timing is independent of the visitor’s timezone. The cycle pauses when the tab is hidden and resumes without jumping.
+The residence cycles automatically through dusk, night, morning, and daylight over 80 seconds. Each scene holds for 3 seconds and blends into the next for 17 seconds. Timing is independent of the visitor’s timezone. The cycle pauses when the tab is hidden and resumes without jumping.
 
-Water, tree canopy, and foreground planting have subtle WebGL texture motion. Hovering over those areas produces localized water ripples or increased foliage sway. The residence itself remains still. This is an illustrative image effect, not a live model or physically simulated environment.
+Water, tree canopy, and foreground planting move continuously through one WebGL renderer. An authored mask confines the effect to the pool surface and planting, excluding the coping, stone wall, and house. Crossing surface waves and random ambient ripple events keep the pool active without pointer input. Variable gusts drive damped foliage motion. Pointer movement adds expanding ripples or local foliage movement; these disturbances decay after departure. The residence itself remains still. This is an illustrative image effect, not a live model or physically simulated environment.
 
 The pause control stops both lighting and nature motion. Reduced-motion preferences disable automatic motion. Static images remain available if WebGL is unavailable. Fonts and optimized responsive images are served locally; there are no analytics, location requests, or external runtime assets.
 
 - Scene timing and blending: `src/lighting.ts`
 - Cycle state, visibility, and reduced motion: `src/useAtmosphere.ts`
-- Nature and pointer response: `src/NatureMotion.tsx`
+- Nature motion wrapper: `src/NatureMotion.tsx`
+- Mask, wave field, wind, and pointer response: `src/nature/` and `public/images/nature-mask.svg`
 - Branding and future stream URL: `src/config.ts`
 
 ## Future Vagon connection
@@ -43,6 +44,8 @@ All frontend configuration is public. Never add API keys, access tokens, signed/
 The deployment workflow builds and tests `main`, then publishes `dist` using GitHub Pages Actions. In repository **Settings → Pages**, use **GitHub Actions** as the source. Relative Vite asset paths and hash routing support hosting under `/home-sim-demo/`, including refreshes on the simulation route.
 
 No backend, database, user accounts, or secrets are required.
+
+The demo viewer fills the available dynamic viewport height, with no fixed minimum viewer height or separate footer. It has no page scroll in portrait or landscape layouts.
 
 ## Assets
 

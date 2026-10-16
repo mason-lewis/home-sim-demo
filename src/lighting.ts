@@ -6,11 +6,14 @@ export const lightingLabels: Record<Lighting, string> = {
   night: "After dark",
 };
 export const cycleOrder: Lighting[] = ["dusk", "night", "morning", "day"];
-export const SCENE_DURATION = 60_000;
-export const HOLD_DURATION = 15_000;
+export const SCENE_DURATION = 20_000;
+export const HOLD_DURATION = 3_000;
 export const CYCLE_DURATION = SCENE_DURATION * cycleOrder.length;
 export interface Atmosphere {
   weights: Record<Lighting, number>;
+  current: Lighting;
+  next: Lighting;
+  blend: number;
   lighting: Lighting;
 }
 export function getAtmosphere(elapsed: number): Atmosphere {
@@ -28,5 +31,11 @@ export function getAtmosphere(elapsed: number): Atmosphere {
   weights[current] = 1;
   weights[next] = blend;
   // Give each visible layer its own opacity; incoming is composited over current.
-  return { weights, lighting: blend < 0.5 ? current : next };
+  return {
+    weights,
+    current,
+    next,
+    blend,
+    lighting: blend < 0.5 ? current : next,
+  };
 }

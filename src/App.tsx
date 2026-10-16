@@ -72,13 +72,9 @@ function Scene({
               decoding="async"
             />
           </picture>
-          <NatureMotion
-            src={asset(`residence-${scene}.webp`)}
-            mobileSrc={asset(`residence-${scene}-mobile.webp`)}
-            active={!paused && weights[scene] > 0 && Boolean(loaded[scene])}
-          />
         </div>
       ))}
+      <NatureMotion atmosphere={atmosphere} paused={paused} asset={asset} />
     </div>
   );
 }
@@ -86,21 +82,10 @@ function TimeLabel({ lighting }: { lighting: Lighting }) {
   const Icon = lighting === "night" ? Moon : Sun;
   return (
     <span className="time-label">
-      <Icon size={14} strokeWidth={1.5} />
+      <Icon aria-hidden="true" size={14} strokeWidth={1.5} />
       {lightingLabels[lighting]}
-      <span className="time-note"> / Light in motion</span>
+      <span className="time-note"> / Light study</span>
     </span>
-  );
-}
-function Footer() {
-  return (
-    <footer>
-      <Brand />
-      <span>An architectural walkthrough demo.</span>
-      <span>
-        © {new Date().getFullYear()} {siteConfig.name}
-      </span>
-    </footer>
   );
 }
 type AtmosphereControls = ReturnType<typeof useAtmosphere>;
@@ -119,7 +104,11 @@ function MotionControl({ controls }: { controls: AtmosphereControls }) {
       }
       aria-pressed={controls.paused}
     >
-      {controls.paused ? <Play size={12} /> : <Pause size={12} />}
+      {controls.paused ? (
+        <Play aria-hidden="true" size={12} />
+      ) : (
+        <Pause aria-hidden="true" size={12} />
+      )}
       <span>{controls.paused ? "Still" : "Pause"}</span>
     </button>
   );
@@ -141,7 +130,7 @@ function Landing({ controls }: { controls: AtmosphereControls }) {
           <Brand />
           <nav aria-label="Main navigation">
             <a className="nav-demo" href="#/simulation">
-              Enter demo <ArrowUpRight size={16} />
+              Enter demo <ArrowUpRight aria-hidden="true" size={16} />
             </a>
           </nav>
         </header>
@@ -162,7 +151,7 @@ function Landing({ controls }: { controls: AtmosphereControls }) {
             Experience a home from within.
           </p>
           <a className="button button-bronze" href="#/simulation">
-            Enter the demo <ArrowUpRight size={19} />
+            Enter the demo <ArrowUpRight aria-hidden="true" size={19} />
           </a>
           <span className="hero-availability">
             Architectural walkthrough · Demo preview
@@ -207,15 +196,15 @@ function Simulation({ controls }: { controls: AtmosphereControls }) {
       <header className="simulation-header">
         <Brand />
         <a className="back-link" href="#/">
-          <ArrowLeft size={16} /> Back to home
+          <ArrowLeft aria-hidden="true" size={16} /> Back to home
         </a>
       </header>
       <main id="main-content" tabIndex={-1} className="simulation-main">
         <div className="viewer-heading">
           <div>
-            <p className="eyebrow">THE DEMO RESIDENCE</p>
+            <p className="eyebrow">THE HILLSIDE RESIDENCE</p>
             <h1>
-              A space to <em>step into.</em>
+              The <em>walkthrough.</em>
             </h1>
           </div>
           <span className="atmosphere-controls">
@@ -244,19 +233,19 @@ function Simulation({ controls }: { controls: AtmosphereControls }) {
                   <span />
                   <span />
                 </span>
-                <p className="eyebrow">A NEW PERSPECTIVE IS ON ITS WAY</p>
+                <p className="eyebrow">YOUR FIRST VISIT STARTS HERE</p>
                 <h2>
                   Walkthrough
                   <br />
                   <em>coming soon.</em>
                 </h2>
                 <p>
-                  We’re preparing the home for your first visit.
+                  We’re getting the home ready for you.
                   <br />
                   The interactive experience will be available here.
                 </p>
                 <a className="text-link" href="#/">
-                  Return home <ArrowRight size={17} />
+                  Return home <ArrowRight aria-hidden="true" size={17} />
                 </a>
               </div>
             </>
@@ -274,25 +263,30 @@ function Simulation({ controls }: { controls: AtmosphereControls }) {
                 onClick={toggleFullscreen}
                 aria-label={fullscreen ? "Exit fullscreen" : "Expand viewer"}
               >
-                {fullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+                {fullscreen ? (
+                  <Minimize2 aria-hidden="true" size={18} />
+                ) : (
+                  <Maximize2 aria-hidden="true" size={18} />
+                )}
                 <span>{fullscreen ? "Exit fullscreen" : "Expand"}</span>
               </button>
             )}
           </div>
         </section>
-        {fullscreenError && <p role="status">{fullscreenError}</p>}
-        <div className="viewer-notes">
-          <span>
-            THE HILLSIDE RESIDENCE{" "}
-            <span className="muted"> / Illustrative concept</span>
-          </span>
-          <p>
-            This is a preview of the demo environment. The live walkthrough is
-            not yet connected.
+        {fullscreenError && (
+          <p className="viewer-error" role="status">
+            {fullscreenError}
           </p>
+        )}
+        <div className="viewer-notes">
+          <span>Illustrative concept residence</span>
+          <span>
+            {siteConfig.streamUrl
+              ? "Interactive walkthrough"
+              : "Live walkthrough coming soon"}
+          </span>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
