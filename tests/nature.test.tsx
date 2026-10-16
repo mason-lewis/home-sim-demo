@@ -107,3 +107,23 @@ test("authored motion mask keeps pool wall and residence outside animated region
     expect(pixel(x, y)).toEqual([0, 0, 0]);
   expect(pixel(800, 900)[1]).toBeGreaterThan(240);
 });
+
+test("ambient branch springs move independently with bounded, continuous recoil", () => {
+  const simulation = new NatureSimulation(42);
+  const ranges = [[], [], []] as number[][];
+  for (let frame = 0; frame < 1800; frame++) {
+    const previous = [...simulation.sway];
+    simulation.advance(frame % 75 === 0 ? 0.1 : 1 / 30);
+    simulation.sway.forEach((value, index) => {
+      expect(Number.isFinite(value)).toBe(true);
+      expect(Math.abs(value)).toBeLessThan(1.6);
+      expect(Math.abs(value - previous[index])).toBeLessThan(0.13);
+      ranges[index].push(value);
+    });
+  }
+  ranges.forEach((values) =>
+    expect(Math.max(...values) - Math.min(...values)).toBeGreaterThan(0.5),
+  );
+  expect(ranges[0]).not.toEqual(ranges[1]);
+  expect(simulation.pointerForce).toBe(0);
+});

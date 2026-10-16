@@ -1,6 +1,8 @@
 import { insidePolygon, POOL, type Point } from "./geometry";
 export const RIPPLE_LIFETIME = 5;
 export const RIPPLE_COUNT = 12;
+const BRANCH_FREQUENCIES = [1.7, 2.4, 2.0];
+const BRANCH_DAMPING = [0.46, 0.58, 0.5];
 export interface Ripple {
   x: number;
   y: number;
@@ -21,6 +23,9 @@ export class NatureSimulation {
   time = 0;
   wind = 0.3;
   velocity = 0;
+  // Canopy, flexible shrub stems, and secondary branches have different inertia.
+  sway = [0.2, 0.15, 0.25];
+  private swayVelocity = [0, 0, 0];
   pointer: Point = [-2, -2];
   pointerForce = 0;
   ripples: Ripple[] = [];
@@ -60,6 +65,20 @@ export class NatureSimulation {
       this.velocity +=
         ((this.targetWind - this.wind) * 2.8 - this.velocity * 2.2) * step;
       this.wind += this.velocity * step;
+      for (let branch = 0; branch < 3; branch++) {
+        const frequency = BRANCH_FREQUENCIES[branch];
+        const damping = BRANCH_DAMPING[branch];
+        const force =
+          (this.wind - 0.35) * 1.35 +
+          0.12 +
+          0.26 * Math.sin(this.time * (0.85 + branch * 0.19) + branch * 1.9) +
+          0.15 * Math.sin(this.time * (1.35 + branch * 0.23) + 0.6 + branch);
+        const acceleration =
+          (force - this.sway[branch]) * frequency * frequency -
+          2 * damping * frequency * this.swayVelocity[branch];
+        this.swayVelocity[branch] += acceleration * step;
+        this.sway[branch] += this.swayVelocity[branch] * step;
+      }
       this.pointerForce *= Math.exp(-step * 2.8);
       if (this.time >= this.nextRipple) {
         this.ambientRipple(this.time);

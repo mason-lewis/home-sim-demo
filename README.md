@@ -23,7 +23,7 @@ npm run preview
 
 The residence cycles automatically through dusk, night, morning, and daylight over 80 seconds. Each scene holds for 3 seconds and blends into the next for 17 seconds. Timing is independent of the visitor’s timezone. The cycle pauses when the tab is hidden and resumes without jumping.
 
-Water, tree canopy, and foreground planting move continuously through one WebGL renderer. An authored mask confines the effect to the pool surface and planting, excluding the coping, stone wall, and house. Crossing surface waves and random ambient ripple events keep the pool active without pointer input. Variable gusts drive damped foliage motion. Pointer movement adds expanding ripples or local foliage movement; these disturbances decay after departure. The residence itself remains still. This is an illustrative image effect, not a live model or physically simulated environment.
+Water, tree canopy, and foreground planting move continuously through one WebGL renderer. An authored mask confines the effect to the pool surface and planting, excluding the coping, stone wall, and house. Crossing surface waves and random ambient ripple events keep the pool active without pointer input. Variable gusts drive separate damped springs for canopy branches, shrub stems, and secondary branches; small leaf flutter is layered over coherent sway. Pointer movement adds expanding ripples or local foliage movement; these disturbances decay after departure. The residence itself remains still. This is an illustrative image effect, not a live model or physically simulated environment.
 
 The pause control stops both lighting and nature motion. Reduced-motion preferences disable automatic motion. Static images remain available if WebGL is unavailable. Fonts and optimized responsive images are served locally; there are no analytics, location requests, or external runtime assets.
 
@@ -52,3 +52,7 @@ The demo viewer fills the available dynamic viewport height, with no fixed minim
 The four residence scenes are AI-generated fictional architecture, created with the built-in image generation tool. They contain no client plans, actual project models, or confidential business material. Image generation notes are in `ASSETS.md`.
 
 The house favicon is an original SVG. DM Sans and Manrope are locally bundled through Fontsource under their accompanying open font licenses. Lucide icons use the ISC license. Dependency licenses remain in their packages.
+
+## Motion video review
+
+The stronger ambient motion was calibrated through two recorded revisions. See [MOTION_REVIEW.md](MOTION_REVIEW.md) for the checks, references, and local recording workflow.

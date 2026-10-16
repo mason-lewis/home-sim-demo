@@ -77,6 +77,7 @@ export function createNatureRenderer(config: RendererConfig) {
         "blend",
         "time",
         "wind",
+        "sway",
         "scale",
         "offset",
         "pointer",
@@ -207,6 +208,12 @@ export function createNatureRenderer(config: RendererConfig) {
     gl.uniform1f(uniforms.blend, displayedBlend);
     gl.uniform1f(uniforms.time, simulation.time);
     gl.uniform1f(uniforms.wind, simulation.wind);
+    gl.uniform3f(
+      uniforms.sway,
+      simulation.sway[0],
+      simulation.sway[1],
+      simulation.sway[2],
+    );
     gl.uniform2f(uniforms.scale, cover.scale[0], cover.scale[1]);
     gl.uniform2f(uniforms.offset, cover.offset[0], cover.offset[1]);
     gl.uniform2f(

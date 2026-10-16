@@ -16,7 +16,7 @@ The review covered both routes, responsive layout, image compositing, motion mas
 
 ## Verification
 
-- `npm test`: 14 tests pass, covering cycle boundaries, pause/resume, hidden tabs, reduced motion, unavailable stream state, ambient ripple continuity, wind stability, pointer disturbance/decay, coordinate mapping, and exclusion of rigid surfaces.
+- `npm test`: 15 tests pass, covering cycle boundaries, pause/resume, hidden tabs, reduced motion, unavailable stream state, ambient ripple continuity, wind stability, pointer disturbance/decay, coordinate mapping, and exclusion of rigid surfaces.
 - TypeScript checks and production build pass.
 - Browser measurements on the demo route showed document dimensions equal to the viewport, with no horizontal or vertical page overflow and no placeholder content beneath the toolbar:
   - 320 × 568
@@ -33,3 +33,7 @@ The review covered both routes, responsive layout, image compositing, motion mas
 ## Limits
 
 The motion is an image-based visual effect, not a three-dimensional fluid or vegetation simulation. The reviewed browser supports WebGL; static images remain the fallback when WebGL is unavailable. Reduced-motion preferences and the pause control intentionally stop automatic effects. Real-device GPU performance, every browser/assistive-technology combination, and Vagon integration were not certified in this review.
+
+## Follow-up motion calibration
+
+The ambient sway and water were subsequently increased and checked with recorded video through two implementation iterations. The final planting uses damped branch springs and coordinated silhouette movement. See [MOTION_REVIEW.md](MOTION_REVIEW.md) for details.

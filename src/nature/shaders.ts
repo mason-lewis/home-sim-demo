@@ -13,6 +13,7 @@ uniform sampler2D referenceImage;
 uniform float blend;
 uniform float time;
 uniform float wind;
+uniform vec3 sway;
 uniform vec2 scale;
 uniform vec2 offset;
 uniform vec2 pointer;
@@ -20,45 +21,62 @@ uniform float pointerForce;
 uniform vec4 ripples[12];
 float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
+float vegetation(vec2 p){
+ vec3 c=texture2D(referenceImage,p).rgb;
+ return smoothstep(.005,.075,c.g-c.b*.98)*smoothstep(.69,.9,c.g/(c.r+.001));
+}
+vec3 scene(vec2 p){return mix(texture2D(currentImage,p).rgb,texture2D(nextImage,p).rgb,blend);}
 void main(){
  vec2 q=uv*scale+offset;
  vec3 masks=texture2D(motionMask,q).rgb;
- vec3 reference=texture2D(referenceImage,q).rgb;
- // Refine foliage by colour in the daylight reference, so sky and stone stay still in every scene.
- float vegetation=smoothstep(.005,.075,reference.g-reference.b*.98)*smoothstep(.69,.9,reference.g/(reference.r+.001));
- float bushes=masks.g*vegetation;
- float leaves=masks.b*vegetation;
- float water=masks.r;
- float gust=.45+wind*.7;
- float field=noise(vec2(q.x*7.-time*.25,q.y*8.+time*.1));
- float branch=sin(time*1.35+q.x*8.)*.65+sin(time*.73+q.x*14.+q.y*4.)*.35;
- float flutter=(noise(q*vec2(110.,85.)+vec2(time*.6,-time*.9))-.5);
- float localWind=branch*gust+(field-.5)*.9;
+ float originalVegetation=vegetation(q);
+ // Nearby plants share the wind direction, with a delayed response along the garden.
+ float phase=noise(vec2(q.x*4.,.37));
+ float pressure=noise(vec2(q.x*5.-time*.18,q.y*2.))-.5;
+ float branch=mix(sway.x,sway.z,phase*.5)+pressure*.12;
+ float stem=mix(sway.y,sway.z,phase*.65)+pressure*.12;
+ // Anchored stems bend progressively toward their tips; trunks and ground stay fixed.
+ float rootY=mix(.91,1.075,smoothstep(.76,.94,q.y));
+ float height=mix(.29,.25,smoothstep(.76,.94,q.y));
+ float stemFlex=pow(clamp((rootY-q.y)/height,0.,1.),1.65);
+ float branchFlex=pow(clamp(length((q-vec2(.94,.035))*vec2(1.,.7))/.55,0.,1.),.8);
+ float flutter=sin(time*4.2+q.x*38.+q.y*29.)*.55+sin(time*5.7-q.x*51.+q.y*19.)*.25;
  float influence=exp(-dot((q-pointer)*vec2(1.,1.78),(q-pointer)*vec2(1.,1.78))*150.)*pointerForce;
- // Coherent, slow branch movement with independent small leaf flutter. No vertical rubber-sheet stretch.
- vec2 foliageMotion=vec2((localWind*.00155+flutter*.0012)*(bushes*.8+leaves),
-                         (localWind*.00012+flutter*.0003)*(bushes+leaves));
- foliageMotion+=vec2(sin(time*3.+q.x*32.)*.0021,cos(time*2.3+q.y*23.)*.0004)*influence*max(bushes,leaves);
- // Multiple crossing capillary waves deform reflections, confined to the water surface.
+ vec2 bushMotion=vec2(stem*.012,stem*.0011)*stemFlex;
+ bushMotion+=vec2(flutter*.0005,flutter*.00016)*stemFlex;
+ vec2 leafMotion=vec2(branch*.011,branch*.003)*branchFlex;
+ leafMotion+=vec2(flutter*.00055,flutter*.00028)*branchFlex;
+ vec2 contact=vec2(sin(time*2.9+q.x*20.)*.0015,cos(time*2.1+q.y*17.)*.00035)*influence;
+ bushMotion+=contact*stemFlex;leafMotion+=contact*branchFlex;
+ // Crossing wind waves perturb reflections continuously, even without pointer input.
  float w1=sin(q.x*210.+q.y*365.-time*2.4);
  float w2=sin(q.x*345.-q.y*226.+time*1.8);
  float w3=sin(q.x*580.+q.y*110.-time*3.2+noise(q*18.+time*.12)*3.);
- vec2 surface=vec2(w1*.00063+w2*.00042+w3*.0002,w1*.00018-w2*.00012);
+ vec2 surface=vec2(w1*.00105+w2*.00065+w3*.0003,w1*.00028-w2*.00018)*(.85+wind*.35);
  float glint=0.;
  for(int i=0;i<12;i++){
-   vec4 r=ripples[i]; float age=time-r.z;
+   vec4 r=ripples[i];float age=time-r.z;
    vec2 delta=(q-r.xy)*vec2(1.,3.4);
    float distance=length(delta);
    float front=distance-age*.045;
-   float envelope=exp(-front*front/0.00032)*exp(-age*.63)*step(0.,age)*r.w;
+   float envelope=exp(-front*front/.00032)*exp(-age*.63)*step(0.,age)*r.w;
    float wave=sin(front*360.);
    vec2 direction=delta/(distance+.001);
-   surface+=direction*vec2(.0011,.00025)*wave*envelope;
-   glint+=wave*envelope*.008;
+   surface+=direction*vec2(.00145,.00033)*wave*envelope;
+   glint+=wave*envelope*.009;
  }
- vec2 samplePoint=clamp(q+foliageMotion+surface*water,0.,1.);
- vec3 colour=mix(texture2D(currentImage,samplePoint).rgb,texture2D(nextImage,samplePoint).rgb,blend);
- colour+=water*(glint+(w1+w2+w3)*.0025);
+ // Attenuate any displacement that would sample coping outside the pool.
+ surface*=masks.r*texture2D(motionMask,clamp(q+surface,0.,1.)).r;
+ vec3 colour=scene(clamp(q+surface,0.,1.));
+ colour+=masks.r*(glint+(w1+w2+w3)*.0032);
+ // Advect whole leaf clusters. The union of old and moved silhouettes avoids
+ // pinning every leaf edge or stretching a plant into a rubber-like sheet.
+ vec2 bushPoint=clamp(q+bushMotion,0.,1.);
+ float bushAlpha=max(masks.g*originalVegetation,texture2D(motionMask,bushPoint).g*vegetation(bushPoint));
+ colour=mix(colour,scene(bushPoint),bushAlpha);
+ vec2 leafPoint=clamp(q+leafMotion,0.,1.);
+ float leafAlpha=max(masks.b*originalVegetation,texture2D(motionMask,leafPoint).b*vegetation(leafPoint));
+ colour=mix(colour,scene(leafPoint),leafAlpha);
  gl_FragColor=vec4(colour,1.);
 }
 `;
