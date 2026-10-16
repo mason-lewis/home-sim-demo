@@ -9,7 +9,6 @@ varying vec2 uv;
 uniform sampler2D currentImage;
 uniform sampler2D nextImage;
 uniform sampler2D motionMask;
-uniform sampler2D referenceImage;
 uniform float blend;
 uniform float time;
 uniform float wind;
@@ -21,28 +20,26 @@ uniform float pointerForce;
 uniform vec4 ripples[12];
 float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
-float vegetation(vec2 p){
- vec3 c=texture2D(referenceImage,p).rgb;
- return smoothstep(.005,.075,c.g-c.b*.98)*smoothstep(.69,.9,c.g/(c.r+.001));
-}
 vec3 scene(vec2 p){return mix(texture2D(currentImage,p).rgb,texture2D(nextImage,p).rgb,blend);}
+float plantingPermission(vec4 mask){return clamp((mask.a*255.-128.)/127.,0.,1.);}
 void main(){
  vec2 q=uv*scale+offset;
- vec3 masks=texture2D(motionMask,q).rgb;
- float originalVegetation=vegetation(q);
+ vec4 masks=texture2D(motionMask,q);
  // Nearby plants share the wind direction, with a delayed response along the garden.
  float phase=noise(vec2(q.x*4.,.37));
  float pressure=noise(vec2(q.x*5.-time*.18,q.y*2.))-.5;
  float branch=mix(sway.x,sway.z,phase*.5)+pressure*.12;
  float stem=mix(sway.y,sway.z,phase*.65)+pressure*.12;
  // Anchored stems bend progressively toward their tips; trunks and ground stay fixed.
- float rootY=mix(.91,1.075,smoothstep(.76,.94,q.y));
- float height=mix(.29,.25,smoothstep(.76,.94,q.y));
- float stemFlex=pow(clamp((rootY-q.y)/height,0.,1.),1.65);
+ // Close shrubs are rooted below the photograph, not at its lower edge.
+ float foreground=smoothstep(.78,.89,q.y);
+ float rootY=mix(.91,1.2,foreground);
+ float height=mix(.29,.36,foreground);
+ float stemFlex=pow(clamp((rootY-q.y)/height,0.,1.),1.35);
  float branchFlex=pow(clamp(length((q-vec2(.94,.035))*vec2(1.,.7))/.55,0.,1.),.8);
  float flutter=sin(time*4.2+q.x*38.+q.y*29.)*.55+sin(time*5.7-q.x*51.+q.y*19.)*.25;
  float influence=exp(-dot((q-pointer)*vec2(1.,1.78),(q-pointer)*vec2(1.,1.78))*150.)*pointerForce;
- vec2 bushMotion=vec2(stem*.012,stem*.0011)*stemFlex;
+ vec2 bushMotion=vec2(stem*mix(.012,.018,foreground),stem*.0011)*stemFlex;
  bushMotion+=vec2(flutter*.0005,flutter*.00016)*stemFlex;
  vec2 leafMotion=vec2(branch*.011,branch*.003)*branchFlex;
  leafMotion+=vec2(flutter*.00055,flutter*.00028)*branchFlex;
@@ -69,13 +66,15 @@ void main(){
  surface*=masks.r*texture2D(motionMask,clamp(q+surface,0.,1.)).r;
  vec3 colour=scene(clamp(q+surface,0.,1.));
  colour+=masks.r*(glint+(w1+w2+w3)*.0032);
- // Advect whole leaf clusters. The union of old and moved silhouettes avoids
- // pinning every leaf edge or stretching a plant into a rubber-like sheet.
+ // Leaf detail can move within the garden, but both ends of a sample must
+ // respect the separate hard exclusions for concrete, rocks, and architecture.
  vec2 bushPoint=clamp(q+bushMotion,0.,1.);
- float bushAlpha=max(masks.g*originalVegetation,texture2D(motionMask,bushPoint).g*vegetation(bushPoint));
+ vec4 bushMask=texture2D(motionMask,bushPoint);
+ float bushAlpha=max(masks.g,bushMask.g)*min(plantingPermission(masks),plantingPermission(bushMask));
  colour=mix(colour,scene(bushPoint),bushAlpha);
  vec2 leafPoint=clamp(q+leafMotion,0.,1.);
- float leafAlpha=max(masks.b*originalVegetation,texture2D(motionMask,leafPoint).b*vegetation(leafPoint));
+ vec4 leafMask=texture2D(motionMask,leafPoint);
+ float leafAlpha=max(masks.b,leafMask.b)*min(plantingPermission(masks),plantingPermission(leafMask));
  colour=mix(colour,scene(leafPoint),leafAlpha);
  gl_FragColor=vec4(colour,1.);
 }

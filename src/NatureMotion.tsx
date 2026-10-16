@@ -44,7 +44,7 @@ export function NatureMotion({ atmosphere, paused, asset }: Props) {
     return createNatureRenderer({
       canvas: canvas.current,
       images,
-      mask: asset("nature-mask.svg"),
+      mask: asset("nature-mask.webp"),
       simulation: simulation.current,
       options: () => current.current,
       ready: setReady,

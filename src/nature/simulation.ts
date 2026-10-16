@@ -107,7 +107,13 @@ export class NatureSimulation {
       distance > 0.001 &&
       this.time - this.lastInteractionRipple > 0.12
     ) {
-      this.addRipple(point, this.time, 0.9 + Math.min(distance * 12, 0.5));
+      // A pointer stroke displaces substantially more water than a wind ripple.
+      // Velocity adds energy without making a fast pass unbounded.
+      this.addRipple(
+        point,
+        this.time,
+        2.8 + Math.min(distance / dt, 1.5) * 1.2,
+      );
       this.lastInteractionRipple = this.time;
     }
     this.lastPointer = point;

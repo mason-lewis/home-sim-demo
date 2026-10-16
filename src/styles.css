@@ -141,16 +141,16 @@ svg {
   background:
     linear-gradient(
       90deg,
-      rgba(10, 19, 20, 0.85),
-      rgba(10, 19, 20, 0.56) 36%,
-      rgba(10, 19, 20, 0.04) 76%
+      rgba(10, 19, 20, 0.58),
+      rgba(10, 19, 20, 0.3) 28%,
+      transparent 62%
     ),
     linear-gradient(
       0deg,
-      rgba(9, 17, 18, 0.78),
-      transparent 27%,
-      transparent 73%,
-      rgba(9, 17, 18, 0.48)
+      rgba(9, 17, 18, 0.32),
+      transparent 20%,
+      transparent 84%,
+      rgba(9, 17, 18, 0.22)
     );
 }
 .main-header {
@@ -180,6 +180,7 @@ svg {
   padding: 20px 6.7%;
   max-width: 850px;
   align-self: center;
+  text-shadow: 0 1px 5px rgba(8, 17, 18, 0.5);
 }
 .eyebrow {
   font-size: 10px;
@@ -210,8 +211,8 @@ svg {
 .hero-description {
   font-size: 17px;
   line-height: 1.75;
-  color: #e0e1da;
-  font-weight: 300;
+  color: #f3f0e9;
+  font-weight: 400;
   margin: clamp(16px, 3svh, 28px) 0;
 }
 .button {
@@ -228,6 +229,7 @@ svg {
 .button-bronze {
   background: #c6a784;
   color: #171d19;
+  text-shadow: none;
   transition:
     background 0.2s,
     transform 0.2s;
@@ -240,7 +242,7 @@ svg {
   display: block;
   font-size: 11px;
   letter-spacing: 0.03em;
-  color: #cdd2c8;
+  color: #f0f0e8;
   margin-top: 13px;
 }
 .hero-bottom {
@@ -250,6 +252,7 @@ svg {
   justify-content: space-between;
   gap: 20px;
   font-size: 11px;
+  text-shadow: 0 1px 4px rgba(8, 17, 18, 0.75);
 }
 .concept-label {
   display: flex;
@@ -258,7 +261,7 @@ svg {
   color: #e2e2d9;
 }
 .concept-label > span:not(.status-dot) {
-  color: #9baca9;
+  color: #e2e2d9;
 }
 .status-dot {
   width: 5px;
@@ -277,7 +280,7 @@ svg {
   color: #e4e3d8;
 }
 .time-note {
-  color: #bac1b7;
+  color: #e4e3d8;
 }
 .atmosphere-controls {
   display: inline-flex;
@@ -373,25 +376,25 @@ svg {
   position: absolute;
   inset: 0;
   z-index: -2;
-  background: linear-gradient(
-    0deg,
-    rgba(10, 18, 16, 0.88),
-    rgba(10, 18, 16, 0.66) 50%,
-    rgba(10, 18, 16, 0.46)
-  );
+  background: rgba(10, 18, 16, 0.02);
 }
 .viewer-placeholder {
   position: absolute;
-  inset: 0 0 48px;
+  top: 24px;
+  left: 24px;
+  width: min(360px, calc(100% - 48px));
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   flex-direction: column;
-  text-align: center;
-  padding: 24px;
+  text-align: left;
+  padding: 26px;
+  background: rgba(20, 29, 25, 0.86);
+  border: 1px solid rgba(231, 228, 216, 0.22);
+  backdrop-filter: blur(10px);
 }
 .viewer-mark {
-  display: flex;
+  display: none;
   gap: 5px;
   align-items: center;
   margin-bottom: 24px;
@@ -411,18 +414,18 @@ svg {
   color: #cbd0c1;
 }
 .viewer-placeholder h2 {
-  font-size: clamp(34px, min(4.5vw, 8.5svh), 65px);
-  margin-top: 18px;
+  font-size: 36px;
+  margin-top: 14px;
   line-height: 1.07;
 }
 .viewer-placeholder h2 em {
   color: #d0b795;
 }
 .viewer-placeholder > p:not(.eyebrow) {
-  font-size: 14px;
-  line-height: 1.85;
+  font-size: 12px;
+  line-height: 1.8;
   color: #d2d7cb;
-  margin-top: 20px;
+  margin-top: 16px;
 }
 .text-link {
   display: inline-flex;
@@ -565,12 +568,13 @@ svg {
   }
   .hero-shade {
     background:
-      linear-gradient(90deg, rgba(8, 17, 18, 0.81), rgba(8, 17, 18, 0.4)),
+      linear-gradient(90deg, rgba(8, 17, 18, 0.52), rgba(8, 17, 18, 0.12) 85%),
       linear-gradient(
         0deg,
-        rgba(8, 17, 18, 0.78),
-        transparent 40%,
-        rgba(8, 17, 18, 0.2)
+        rgba(8, 17, 18, 0.3),
+        transparent 25%,
+        transparent 85%,
+        rgba(8, 17, 18, 0.16)
       );
   }
   .hero .scene-layer img {
@@ -632,11 +636,15 @@ svg {
     padding: 8px 10px;
   }
   .viewer-placeholder {
-    padding: 18px;
+    top: 14px;
+    left: 14px;
+    width: calc(100% - 28px);
+    max-width: 360px;
+    padding: 20px;
   }
   .viewer-placeholder h2 {
-    font-size: clamp(33px, 8.4vw, 44px);
-    margin-top: 18px;
+    font-size: 33px;
+    margin-top: 14px;
   }
   .viewer-placeholder .eyebrow {
     font-size: 8px;
@@ -644,12 +652,12 @@ svg {
   }
   .viewer-placeholder > p:not(.eyebrow) {
     font-size: 12px;
-    margin-top: 18px;
+    margin-top: 14px;
     line-height: 1.8;
   }
   .viewer-placeholder .text-link {
     font-size: 12px;
-    margin-top: 19px;
+    margin-top: 14px;
   }
   .viewer-mark {
     margin-bottom: 22px;
@@ -782,8 +790,11 @@ svg {
     grid-template-rows: auto minmax(0, 1fr);
   }
   .viewer-placeholder {
-    padding: 10px;
-    bottom: 44px;
+    top: 12px;
+    left: 12px;
+    width: min(460px, calc(100% - 24px));
+    max-width: none;
+    padding: 14px;
   }
   .viewer-mark,
   .viewer-placeholder > .eyebrow {

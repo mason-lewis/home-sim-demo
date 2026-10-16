@@ -73,7 +73,6 @@ export function createNatureRenderer(config: RendererConfig) {
         "currentImage",
         "nextImage",
         "motionMask",
-        "referenceImage",
         "blend",
         "time",
         "wind",
@@ -192,11 +191,9 @@ export function createNatureRenderer(config: RendererConfig) {
     bind(0, images[state.atmosphere.current].texture);
     bind(1, images[state.atmosphere.next].texture);
     bind(2, mask);
-    bind(3, images.day.texture);
     gl.uniform1i(uniforms.currentImage, 0);
     gl.uniform1i(uniforms.nextImage, 1);
     gl.uniform1i(uniforms.motionMask, 2);
-    gl.uniform1i(uniforms.referenceImage, 3);
     if (displayedScene !== state.atmosphere.current) {
       displayedScene = state.atmosphere.current;
       displayedBlend = 0;

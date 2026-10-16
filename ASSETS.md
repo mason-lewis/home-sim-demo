@@ -27,3 +27,5 @@ To regenerate optimized images from a local folder containing `morning.png`, `da
 ```sh
 node scripts/optimize-images.mjs /path/to/source-images
 ```
+
+The lossless `nature-mask.webp` is generated from the fictional daylight image and the authored `tools/nature-regions.svg`. Run `npm run assets:mask` to rebuild it. It contains water, planting, and canopy coverage, with explicit exclusions for the terrace corner, pool corner, and foreground rocks.

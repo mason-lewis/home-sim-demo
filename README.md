@@ -23,14 +23,16 @@ npm run preview
 
 The residence cycles automatically through dusk, night, morning, and daylight over 80 seconds. Each scene holds for 3 seconds and blends into the next for 17 seconds. Timing is independent of the visitor’s timezone. The cycle pauses when the tab is hidden and resumes without jumping.
 
-Water, tree canopy, and foreground planting move continuously through one WebGL renderer. An authored mask confines the effect to the pool surface and planting, excluding the coping, stone wall, and house. Crossing surface waves and random ambient ripple events keep the pool active without pointer input. Variable gusts drive separate damped springs for canopy branches, shrub stems, and secondary branches; small leaf flutter is layered over coherent sway. Pointer movement adds expanding ripples or local foliage movement; these disturbances decay after departure. The residence itself remains still. This is an illustrative image effect, not a live model or physically simulated environment.
+Water, tree canopy, and foreground planting move continuously through one WebGL renderer. A lossless foliage matte combines hand-traced regions, explicit stone exclusions, and daylight colour separation. A separate movement-permission channel protects both ends of each displaced sample, so moving leaf detail cannot pull the terrace corner or foreground rocks into the effect. Crossing surface waves and random ambient ripple events keep the pool active without pointer input. Variable gusts drive separate damped springs for canopy branches, shrub stems, and secondary branches; small leaf flutter is layered over coherent sway. Pointer movement adds expanding ripples with at least three times the strength of ambient ripple events, or local foliage movement; these disturbances decay after departure. The residence itself remains still. This is an illustrative image effect, not a live model or physically simulated environment.
+
+The landing page uses a light, text-side gradient. The viewer keeps the image bright, with the unavailable message in a compact panel instead of darkening the entire frame.
 
 The pause control stops both lighting and nature motion. Reduced-motion preferences disable automatic motion. Static images remain available if WebGL is unavailable. Fonts and optimized responsive images are served locally; there are no analytics, location requests, or external runtime assets.
 
 - Scene timing and blending: `src/lighting.ts`
 - Cycle state, visibility, and reduced motion: `src/useAtmosphere.ts`
 - Nature motion wrapper: `src/NatureMotion.tsx`
-- Mask, wave field, wind, and pointer response: `src/nature/` and `public/images/nature-mask.svg`
+- Mask, wave field, wind, and pointer response: `src/nature/` and `public/images/nature-mask.webp`
 - Branding and future stream URL: `src/config.ts`
 
 ## Future Vagon connection
@@ -55,4 +57,6 @@ The house favicon is an original SVG. DM Sans and Manrope are locally bundled th
 
 ## Motion video review
 
-The stronger ambient motion was calibrated through two recorded revisions. See [MOTION_REVIEW.md](MOTION_REVIEW.md) for the checks, references, and local recording workflow.
+The motion was calibrated with recorded revisions, including targeted concrete-corner and foreground planting checks. See [MOTION_REVIEW.md](MOTION_REVIEW.md) for the checks, references, and local recording workflow.
+
+Rebuild the motion matte with `npm run assets:mask` after editing `tools/nature-regions.svg` or replacing the daylight image. The generator uses the existing Sharp development dependency; no segmentation runs in the visitor’s browser.

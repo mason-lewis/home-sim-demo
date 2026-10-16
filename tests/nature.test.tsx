@@ -59,6 +59,15 @@ test("pointer contact creates a localized ripple which decays after departure", 
   simulation.disturb([0.8, 0.8]);
   const contact = simulation.ripples.find((r) => r.x === 0.8 && r.y === 0.8);
   expect(contact).toBeDefined();
+  expect(contact!.strength).toBeGreaterThanOrEqual(2.8);
+  expect(contact!.strength).toBeGreaterThan(
+    3 *
+      Math.max(
+        ...simulation.ripples
+          .filter((r) => r !== contact)
+          .map((r) => r.strength),
+      ),
+  );
   expect(simulation.pointerForce).toBeGreaterThan(0);
   simulation.leave();
   simulation.advance(6);
@@ -86,9 +95,9 @@ test("pointer coordinates map to the same scene in portrait and landscape crops"
     );
   }
 });
-test("authored motion mask keeps pool wall and residence outside animated regions", async () => {
-  const { data, info } = await sharp("public/images/nature-mask.svg")
-    .removeAlpha()
+test("published motion matte protects concrete corners and rocks, and includes foreground shrubs", async () => {
+  const { data, info } = await sharp("public/images/nature-mask.webp")
+    .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
   const pixel = (x: number, y: number) => [
@@ -105,7 +114,44 @@ test("authored motion mask keeps pool wall and residence outside animated region
     [800, 310],
   ])
     expect(pixel(x, y)).toEqual([0, 0, 0]);
-  expect(pixel(800, 900)[1]).toBeGreaterThan(240);
+  // Scan whole patches, including the corner missed by the original spot checks.
+  for (const [left, top, width, height] of [
+    [512, 667, 40, 35], // exposed terrace corner
+    [703, 743, 30, 15], // pool's front-left concrete corner
+    [685, 800, 40, 40], // central boulder
+    [330, 780, 30, 35], // left boulder
+    [380, 861, 45, 25], // flat foreground rock
+  ])
+    for (let y = top; y < top + height; y++)
+      for (let x = left; x < left + width; x++) {
+        expect(pixel(x, y)).toEqual([0, 0, 0]);
+        // A translated leaf can never override this destination protection.
+        expect(data[(y * info.width + x) * info.channels + 3]).toBe(128);
+      }
+  for (const [x, y] of [
+    [90, 900],
+    [220, 880],
+    [570, 830],
+    [800, 900],
+    [960, 880],
+    [1260, 930],
+    [1450, 900],
+    [1600, 900],
+  ])
+    expect(pixel(x, y)[1]).toBeGreaterThan(90);
+});
+
+test("fast cursor strokes add stronger bounded impulses while ambient ripples stay gentle", () => {
+  const simulation = new NatureSimulation(42);
+  simulation.advance(0.2);
+  simulation.disturb([0.75, 0.78]);
+  simulation.advance(0.15);
+  simulation.disturb([0.9, 0.8]);
+  const stroke = simulation.ripples.at(-1)!;
+  expect(stroke.strength).toBeGreaterThan(3.8);
+  expect(stroke.strength).toBeLessThanOrEqual(4.6);
+  simulation.advance(6);
+  expect(simulation.ripples.every((r) => r.strength <= 0.85)).toBe(true);
 });
 
 test("ambient branch springs move independently with bounded, continuous recoil", () => {

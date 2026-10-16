@@ -8,7 +8,7 @@ The review covered both routes, responsive layout, image compositing, motion mas
 | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Fixed viewer minimum heights, notes, and footer exceeded the viewport | The old demo measured 1,074px high in a 768px laptop viewport and 998px in an 844px phone viewport | Dynamic viewport grid with a flexible viewer, compact header, and no separate footer                                   |
 | Four-minute lighting loop and 15-second initial hold                  | Most short visits would see little change                                                          | 80-second loop: 3-second hold and 17-second blend per scene                                                            |
-| Broad rectangular water and vegetation regions                        | Motion could bend coping, stone, and other rigid surfaces                                          | Authored pool/planting/canopy mask, inset water boundary, and daylight-based foliage refinement                        |
+| Broad rectangular water and vegetation regions                        | Motion could bend coping, stone, and other rigid surfaces                                          | Lossless foliage matte, explicit corner/rock exclusions, inset water boundary, and source/destination clipping         |
 | Simple repeated wave distortion                                       | Water appeared to wobble rather than carry localized disturbances                                  | Crossing surface waves plus continuously generated random, expanding, damped ripple events                             |
 | Cursor-centered oscillation and uniform wind                          | Pointer effects persisted unrealistically and foliage moved together                               | Movement-triggered ripple impulses, decay after departure, variable damped gusts, and smaller independent leaf flutter |
 | Separate rendering contexts for each lighting image                   | More resources and independent animation state across scene changes                                | One renderer, one motion field, and shared image compositing                                                           |
@@ -16,7 +16,7 @@ The review covered both routes, responsive layout, image compositing, motion mas
 
 ## Verification
 
-- `npm test`: 15 tests pass, covering cycle boundaries, pause/resume, hidden tabs, reduced motion, unavailable stream state, ambient ripple continuity, wind stability, pointer disturbance/decay, coordinate mapping, and exclusion of rigid surfaces.
+- `npm test`: 16 tests pass, covering cycle boundaries, pause/resume, hidden tabs, reduced motion, unavailable stream state, ambient ripple continuity, wind stability, pointer disturbance/decay, coordinate mapping, and exclusion of rigid surfaces.
 - TypeScript checks and production build pass.
 - Browser measurements on the demo route showed document dimensions equal to the viewport, with no horizontal or vertical page overflow and no placeholder content beneath the toolbar:
   - 320 × 568
@@ -36,4 +36,4 @@ The motion is an image-based visual effect, not a three-dimensional fluid or veg
 
 ## Follow-up motion calibration
 
-The ambient sway and water were subsequently increased and checked with recorded video through two implementation iterations. The final planting uses damped branch springs and coordinated silhouette movement. See [MOTION_REVIEW.md](MOTION_REVIEW.md) for details.
+The ambient sway and water were subsequently increased and checked with recorded video through two implementation iterations. The final planting uses damped branch springs, a colour-separated foliage matte, and source/destination clipping. Follow-up regression checks scan the exposed concrete corners and boulder patches, and verify foreground coverage across the frame. See [MOTION_REVIEW.md](MOTION_REVIEW.md) for details.
