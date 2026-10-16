@@ -113,15 +113,27 @@ function MotionControl({ controls }: { controls: AtmosphereControls }) {
     </button>
   );
 }
-function SiteFooter() {
+function SiteFooter({ controls }: { controls?: AtmosphereControls }) {
   return (
-    <footer className="site-footer" aria-label="Site information">
+    <footer
+      className={`site-footer${controls ? " has-atmosphere" : ""}`}
+      aria-label="Site information"
+    >
       <span>
         © {new Date().getFullYear()} {siteConfig.copyrightOwner}.
         <span className="copyright-rights"> All rights reserved.</span>
       </span>
+      {controls && (
+        <span className="atmosphere-controls">
+          <TimeLabel lighting={controls.atmosphere.lighting} />
+          <MotionControl controls={controls} />
+        </span>
+      )}
       {siteConfig.contactEmail ? (
-        <a href={`mailto:${siteConfig.contactEmail}`}>
+        <a
+          className="footer-contact"
+          href={`mailto:${siteConfig.contactEmail}`}
+        >
           {siteConfig.contactEmail}{" "}
           <ArrowUpRight aria-hidden="true" size={12} />
         </a>
@@ -133,7 +145,6 @@ function SiteFooter() {
 }
 function Landing({ controls }: { controls: AtmosphereControls }) {
   const { atmosphere, paused } = controls;
-  const { lighting } = atmosphere;
   return (
     <>
       <main
@@ -172,22 +183,11 @@ function Landing({ controls }: { controls: AtmosphereControls }) {
             Enter the demo <ArrowUpRight aria-hidden="true" size={19} />
           </a>
           <span className="hero-availability">
-            Architectural walkthrough · Demo preview
+            Architectural walkthrough · Illustrative preview
           </span>
         </div>
         <div className="hero-footer">
-          <div className="hero-bottom">
-            <span className="concept-label">
-              <span className="status-dot" />
-              The hillside residence <span>/</span> Illustrative concept
-            </span>
-            <span className="atmosphere-controls">
-              <TimeLabel lighting={lighting} />
-              <MotionControl controls={controls} />
-            </span>
-            <span className="entry-note">A home, before it’s built.</span>
-          </div>
-          <SiteFooter />
+          <SiteFooter controls={controls} />
         </div>
       </main>
     </>

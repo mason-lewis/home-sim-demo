@@ -6,7 +6,7 @@ The review covered both routes, responsive layout, image compositing, motion mas
 
 | Finding                                                               | Impact                                                                                             | Correction                                                                                                             |
 | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Fixed viewer minimum heights, notes, and footer exceeded the viewport | The old demo measured 1,074px high in a 768px laptop viewport and 998px in an 844px phone viewport | Dynamic viewport grid with a flexible viewer, compact header, and footer inside the viewport                                   |
+| Fixed viewer minimum heights, notes, and footer exceeded the viewport | The old demo measured 1,074px high in a 768px laptop viewport and 998px in an 844px phone viewport | Dynamic viewport grid with a flexible viewer, compact header, and footer inside the viewport                           |
 | Four-minute lighting loop and 15-second initial hold                  | Most short visits would see little change                                                          | 80-second loop: 3-second hold and 17-second blend per scene                                                            |
 | Broad rectangular water and vegetation regions                        | Motion could bend coping, stone, and other rigid surfaces                                          | Lossless foliage matte, explicit corner/rock exclusions, inset water boundary, and source/destination clipping         |
 | Simple repeated wave distortion                                       | Water appeared to wobble rather than carry localized disturbances                                  | Crossing surface waves plus continuously generated random, expanding, damped ripple events                             |
@@ -43,3 +43,10 @@ The ambient sway and water were subsequently increased and checked with recorded
 - Large-screen typography, controls, and spacing scale with both viewport dimensions up to 3840 × 2160. Native and Retina 4K canvas sizes are tested, with an 8,294,400-pixel budget. The source image resolution is unchanged.
 - Cursor-driven plant and tree displacement has been removed. Pointer strokes affect only water impulses; matching seeded runs verify that wind and branch state remain identical with and without pointer activity.
 - Copyright and a contact placeholder appear on both routes. The footer and viewer stay within the viewport at 320 × 568, 390 × 844, 844 × 390, 1920 × 1080, 2560 × 1440, and 3840 × 2160.
+
+## Mobile edge and footer follow-up
+
+- Replace the landing page’s fixed small-viewport height with dynamic viewport height. Keep the photographic backdrop fixed and sized to the large viewport. Enable `viewport-fit=cover` and apply safe-area insets to content.
+- Remove the separate residence/concept and tagline row. Copyright, atmosphere controls, and contact information now share a dark footer; small phones wrap the controls into a second row. The preview caption still identifies the image as illustrative.
+- Check both routes at 320 × 568, 390 × 664, 390 × 844, 844 × 390, and 3840 × 2160, including simulated portrait and landscape safe-area insets. These are page geometry checks in the in-app browser, not a certification of physical iOS Safari chrome behavior.
+- The available host has no iOS Simulator runtime. Safari’s own status/address-bar background treatment remains browser-controlled.

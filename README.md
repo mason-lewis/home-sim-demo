@@ -66,3 +66,11 @@ The house favicon is an original SVG. DM Sans and Manrope are locally bundled th
 The motion was calibrated with recorded revisions, including targeted concrete-corner and foreground planting checks. See [MOTION_REVIEW.md](MOTION_REVIEW.md) for the checks, references, and local recording workflow.
 
 Rebuild the motion matte with `npm run assets:mask` after editing `tools/nature-regions.svg` or replacing the daylight image. The generator uses the existing Sharp development dependency; no segmentation runs in the visitor’s browser.
+
+## Mobile viewport and footer
+
+The landing page uses the dynamic viewport height for its content and a fixed backdrop sized to the large viewport, so opening or retracting browser controls does not leave an uncovered page strip. `viewport-fit=cover` enables edge-to-edge layout; safe-area padding keeps the header and footer controls clear of device cutouts. The copyright, atmosphere controls, and contact placeholder share one dark footer band, with a compact wrap on phones.
+
+The browser owns its status and address-bar regions. In particular, Safari may fill those regions with its own sampled colour rather than showing the actual photo; the page cannot guarantee image rendering there. See [WebKit’s explanation](https://bugs.webkit.org/show_bug.cgi?id=297779#c23).
+
+For local geometry checks, open `/tools/mobile-review.html?safe=47,0,34,0` after starting Vite. Insets are top, right, bottom, and left in CSS pixels. This fixture simulates safe-area values, not Safari’s browser interface, and is excluded from the production build.
