@@ -82,19 +82,12 @@ svg {
   transform: translateY(0);
 }
 .brand {
-  display: inline-flex;
-  gap: 12px;
-  align-items: center;
+  display: inline-block;
   white-space: nowrap;
   font-family: Manrope, sans-serif;
   font-size: 20px;
   font-weight: 500;
   letter-spacing: 0.23em;
-}
-.brand > span {
-  color: var(--bronze);
-  font-weight: 300;
-  font-size: 27px;
 }
 .hero {
   position: relative;
@@ -568,10 +561,6 @@ svg {
   }
   .brand {
     font-size: 15px;
-    gap: 9px;
-  }
-  .brand > span {
-    font-size: 22px;
   }
   .main-header {
     padding: 17px 2%;
@@ -879,10 +868,6 @@ svg {
   }
   .brand {
     font-size: calc(20 * var(--display-unit));
-    gap: calc(12 * var(--display-unit));
-  }
-  .brand > span {
-    font-size: calc(27 * var(--display-unit));
   }
   .main-header {
     padding-block: calc(31 * var(--display-unit));

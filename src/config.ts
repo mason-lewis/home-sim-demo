@@ -6,8 +6,8 @@ interface SiteConfig {
 }
 // Public presentation settings only. Never put credentials or private model URLs here.
 export const siteConfig: SiteConfig = {
-  name: "FORM / SPACE",
-  copyrightOwner: "FORM / SPACE",
+  name: "DREAM VIEW",
+  copyrightOwner: "DREAM VIEW",
   contactEmail: null,
   streamUrl: null,
 };

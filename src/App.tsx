@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -28,12 +28,7 @@ const scenes: Lighting[] = ["morning", "day", "dusk", "night"];
 function Brand() {
   return (
     <a className="brand" href="#/" aria-label={`${siteConfig.name} home`}>
-      {siteConfig.name.split("/").map((part, index) => (
-        <React.Fragment key={index}>
-          {index > 0 && <span>/</span>}
-          {part.trim()}
-        </React.Fragment>
-      ))}
+      {siteConfig.name}
     </a>
   );
 }

@@ -102,7 +102,7 @@ test("simulation route has a clear unavailable state and no iframe", () => {
   expect(container.querySelector(".time-label")?.textContent).toContain(
     "Morning light",
   );
-  expect(document.title).toBe("The walkthrough — FORM / SPACE");
+  expect(document.title).toBe("The walkthrough — DREAM VIEW");
   act(() => {
     window.history.replaceState(null, "", "/#/");
     window.dispatchEvent(new HashChangeEvent("hashchange"));
