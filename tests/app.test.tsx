@@ -25,6 +25,7 @@ function Probe() {
 }
 beforeEach(() => {
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+  vi.stubGlobal("__DEMO_ASSET_REVISION__", "test-model-revision");
   vi.stubGlobal("crypto", webcrypto);
   siteConfig.demoPasswordHash = createHash("sha256").update("test-access").digest("hex");
   vi.useFakeTimers({ toFake: ["performance", "setInterval", "clearInterval"] });
@@ -99,12 +100,12 @@ test("reduced-motion preference freezes the atmosphere and responds to changes",
   advance(20_000);
   expect(container.querySelector("output")?.textContent).toBe("day");
 });
-test("the studio preloads behind the access gate and keeps the same iframe on unlock", async () => {
+test("the studio versions its viewer by model release and keeps the same iframe on unlock", async () => {
   reduced = true;
   window.history.replaceState(null, "", "/#/demo");
   act(() => root.render(<App />));
   const frame=container.querySelector<HTMLIFrameElement>("iframe")!;
-  expect(frame.getAttribute("src")).toBe("/browser-demo/index.html");
+  expect(frame.getAttribute("src")).toBe("/browser-demo/index.html?v=test-model-revision");
   expect(frame.classList.contains("browser-demo-preloading")).toBe(true);
   expect(frame.getAttribute("aria-hidden")).toBe("true");
   expect(frame.hasAttribute("inert")).toBe(true);

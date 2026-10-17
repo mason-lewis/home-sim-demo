@@ -196,7 +196,7 @@ function BrowserDemo({ controls }: { controls: AtmosphereControls }) {
         {/* Keep the full-size viewer mounted so it can prepare behind the gate. */}
         <iframe
           title="Coastal Residence — customize and explore the exterior"
-          src={`${import.meta.env.BASE_URL}browser-demo/index.html`}
+          src={`${import.meta.env.BASE_URL}browser-demo/index.html?v=${__DEMO_ASSET_REVISION__}`}
           className={unlocked ? undefined : "browser-demo-preloading"}
           aria-hidden={!unlocked}
           inert={!unlocked}
