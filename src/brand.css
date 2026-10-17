@@ -1,0 +1,21 @@
+@import "@fontsource/dm-sans/latin-300.css";
+@import "@fontsource/dm-sans/latin-400.css";
+@import "@fontsource/dm-sans/latin-500.css";
+@import "@fontsource/manrope/latin-300.css";
+@import "@fontsource/manrope/latin-400.css";
+@import "@fontsource/manrope/latin-500.css";
+
+/* The landing page and the iframe studio share the same visual foundation. */
+:root {
+  --font-body: "DM Sans", sans-serif;
+  --font-heading: "Manrope", sans-serif;
+  --font-editorial: Georgia, "Times New Roman", serif;
+  --ink: #141917;
+  --surface: #1b2420;
+  --paper: #f3f0e9;
+  --muted: #b6bcb1;
+  --bronze: #c3a17d;
+  --bronze-light: #dcc09e;
+  --line: rgba(231, 228, 216, 0.17);
+  --focus: #e6c095;
+}

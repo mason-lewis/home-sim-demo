@@ -11,12 +11,7 @@ import {
 import { lightingLabels, type Lighting, type Atmosphere } from "./lighting";
 import { useAtmosphere } from "./useAtmosphere";
 import { siteConfig } from "./config";
-import "@fontsource/dm-sans/latin-300.css";
-import "@fontsource/dm-sans/latin-400.css";
-import "@fontsource/dm-sans/latin-500.css";
-import "@fontsource/manrope/latin-300.css";
-import "@fontsource/manrope/latin-400.css";
-import "@fontsource/manrope/latin-500.css";
+import "./brand.css";
 import "./styles.css";
 import { NatureMotion } from "./NatureMotion";
 
@@ -186,7 +181,7 @@ function Landing({ controls }: { controls: AtmosphereControls }) {
     </>
   );
 }
-function BrowserDemo() {
+function BrowserDemo({ controls }: { controls: AtmosphereControls }) {
   const [frameLoaded, setFrameLoaded] = useState(false);
   const [unlocked,setUnlocked]=useState(false);
   return (
@@ -204,7 +199,7 @@ function BrowserDemo() {
           allow="fullscreen"
           allowFullScreen
           onLoad={() => setFrameLoaded(true)}
-        /> : <div className="browser-demo-gate"><img src={`${import.meta.env.BASE_URL}browser-demo/home-preview.webp`} alt="Preview of the exterior model" /><DemoAccess onUnlock={()=>setUnlocked(true)} /></div>}
+        /> : <div className="browser-demo-gate"><Scene atmosphere={controls.atmosphere} paused={controls.paused} /><div className="hero-shade" /><DemoAccess onUnlock={()=>setUnlocked(true)} /></div>}
       </main>
     </div>
   );
@@ -236,7 +231,7 @@ export function App() {
       >
         Skip to content
       </a>
-      {demo ? (<BrowserDemo />) : (
+      {demo ? (<BrowserDemo controls={controls} />) : (
         <Landing controls={controls} />
       )}
     </>

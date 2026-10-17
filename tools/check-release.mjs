@@ -8,7 +8,7 @@ const expectedRuntime=['home-preview.webp','viewer-scene.json','models/exterior-
 assert.deepEqual(manifest.files.map(f=>f.file).sort(),[...expectedRuntime].sort(),'Runtime allowlist changed');
 const allowed=new Set([...expectedRuntime,'release-manifest.json']);
 const allowedBuild=new Set(['index.html','browser-demo/index.html','favicon.svg',...Array.from(allowed,f=>'browser-demo/'+f),'images/nature-mask.webp',...['morning','day','dusk','night'].flatMap(time=>['images/residence-'+time+'.webp','images/residence-'+time+'-mobile.webp']),...['dm-sans','lucide','manrope','exterior-assets','three','meshoptimizer'].map(name=>'licenses/'+name+'.txt')]);
-const generated=/^assets\/(?:(?:site|studio|graphics|exercise|modulepreload-polyfill)-[A-Za-z0-9_-]{8}\.js|(?:site|studio)-[A-Za-z0-9_-]{8}\.css|(?:dm-sans|manrope)-[A-Za-z0-9_-]+\.woff2?)$/;
+const generated=/^assets\/(?:(?:site|studio|brand|graphics|exercise|modulepreload-polyfill)-[A-Za-z0-9_-]{8}\.js|(?:site|studio|brand)-[A-Za-z0-9_-]{8}\.css|(?:dm-sans|manrope)-[A-Za-z0-9_-]+\.woff2?)$/;
 
 const forbidden=/\/Users\/|\/workspace\/|\.blend["']|references\/source|architecture\/revisions|source_sha256|streams\.vagon\.io/i;
 async function walk(dir){const files=[];for(const e of await fs.readdir(dir,{withFileTypes:true})){const p=path.join(dir,e.name);if(e.isDirectory())files.push(...await walk(p));else files.push(p);}return files;}

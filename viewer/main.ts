@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
 import { MeshoptDecoder } from 'meshoptimizer';
 import { createHomeCamera } from './camera';
+import '../src/brand.css';
 import './style.css';
 import { applyBakedIrradiance, createGlass, captureGlassReflections } from './lighting';
 import { addLandscape, type ViewerSite } from './landscape';
@@ -22,7 +23,7 @@ const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getEleme
 $('app').innerHTML = `
 <main class="viewer" aria-label="Coastal Residence exterior viewer">
   <div id="scene" class="scene" aria-busy="true"></div>
-  <header class="masthead"><div class="brand-icon">${icon('<path d="m3 10 9-6 9 6M6 8v12h12V8M10 20v-6h4v6"/>')}</div><div><div class="eyebrow">An exterior study</div><h1>Coastal Residence</h1></div></header>
+  <header class="masthead"><div class="eyebrow">An exterior study</div><h1>Coastal <em>Residence.</em></h1></header>
   <div class="study">Private architectural model</div>
   ${customizationShell()}
   <div class="hint" id="hint"><span id="hint-text">Drag to rotate · Scroll to zoom.</span></div>
@@ -215,7 +216,7 @@ async function launch() {
   try {
     try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' }); }
     catch { clearTimeout(loadingTimeout); fail('This browser can’t display 3D. Try an up-to-date Safari, Chrome, Firefox, or Edge with hardware acceleration enabled.'); return; }
-    renderer.setClearColor(0xf2f0eb, 0);
+    renderer.setClearColor(0x141917, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.CustomToneMapping; renderer.toneMappingExposure = 1;
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
