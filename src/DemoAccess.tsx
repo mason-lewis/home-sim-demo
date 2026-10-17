@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { ArrowUpRight, LockKeyhole } from "lucide-react";
 import { siteConfig } from "./config";
 
-export function StreamAccess({ onUnlock }: { onUnlock: () => void }) {
+export function DemoAccess({ onUnlock }: { onUnlock: () => void }) {
   const [error, setError] = useState("");
   const [checking, setChecking] = useState(false);
 
@@ -21,7 +21,7 @@ export function StreamAccess({ onUnlock }: { onUnlock: () => void }) {
       const hash = Array.from(new Uint8Array(digest), (byte) =>
         byte.toString(16).padStart(2, "0"),
       ).join("");
-      if (hash === siteConfig.streamPasswordHash) onUnlock();
+      if (hash === siteConfig.demoPasswordHash) onUnlock();
       else setError("That password didn’t match. Please try again.");
     } catch {
       setError("Unable to check the password. Please reload and try again.");
@@ -38,11 +38,11 @@ export function StreamAccess({ onUnlock }: { onUnlock: () => void }) {
         aria-labelledby="stream-access-title"
       >
         <LockKeyhole size={22} strokeWidth={1.5} aria-hidden="true" />
-        <p className="eyebrow">A PRIVATE PREVIEW</p>
+        <p className="eyebrow">EXTERIOR DEMO</p>
         <h2 id="stream-access-title">
-          Step <em>inside.</em>
+          Make yourself <em>at home.</em>
         </h2>
-        <p>Enter your password to start the walkthrough.</p>
+        <p>Enter your demo password to open the exterior studio.</p>
         <label htmlFor="stream-password">Demo password</label>
         <input
           id="stream-password"
@@ -57,7 +57,7 @@ export function StreamAccess({ onUnlock }: { onUnlock: () => void }) {
           <p id="stream-password-error" role="alert">{error}</p>
         )}
         <button className="button button-bronze" type="submit" disabled={checking}>
-          {checking ? "Checking…" : "Start walkthrough"}
+          {checking ? "Checking…" : "Open studio"}
           <ArrowUpRight aria-hidden="true" size={19} />
         </button>
       </form>

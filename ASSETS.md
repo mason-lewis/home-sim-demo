@@ -1,6 +1,6 @@
-# Image provenance
+# Landing page image provenance
 
-The residence is fictional, generated for this demo with the built-in image generation tool. Its surroundings, floor plan implications, and lighting do not represent a real client project. The water and foliage effects are procedural image distortions layered over these images.
+The landing-page residence is fictional, generated for this demo with the built-in image generation tool. Its surroundings, floor plan implications, and lighting do not represent a real client project. The water and foliage effects are procedural image distortions layered over these images.
 
 ## Morning source prompt
 
@@ -29,3 +29,11 @@ node scripts/optimize-images.mjs /path/to/source-images
 ```
 
 The lossless `nature-mask.webp` is generated from the fictional daylight image and the authored `tools/nature-regions.svg`. Run `npm run assets:mask` to rebuild it. It contains water, planting, and canopy coverage, with explicit exclusions for the terrace corner, pool corner, and foreground rocks.
+
+## Interactive exterior studio
+
+The 3D studio is a separately authored architectural model, not the fictional landing-page illustration. Only optimized runtime derivatives are included. Authoring models, architectural plans, reference photos and private QA evidence are excluded. The viewer keeps the exterior shell and basic structure, with no furniture, vehicles or decorations. Landscaping and proposed finish choices are illustrative.
+
+Runtime material sources: ambientCG Grass004 (ambientCG, CC0, https://ambientcg.com/a/Grass004, license https://docs.ambientcg.com/license/); Poly Haven Tree Small 02 (Rico Cilliers), Granular Concrete, Clean Asphalt (Dimitrios Savva), all CC0, https://polyhaven.com/license. See public/licenses/exterior-assets.txt. Original download records and derivative hashes are retained in the separate authoring project.
+
+Environment lighting: Kloofendal 48d Partly Cloudy (Pure Sky), Greg Zaal and Jarod Guest, Poly Haven, CC0, https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky. House surface textures are authored procedural PBR materials. Three.js and meshoptimizer licenses are retained in public/licenses/.

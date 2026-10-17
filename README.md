@@ -1,80 +1,36 @@
 # DREAM VIEW
 
-A cinematic, single-screen entry to an architectural walkthrough demo. Built with React, Vite, and TypeScript; runs entirely as a static site.
-
-The primary action opens a password screen at `#/simulation`. The Vagon iframe is created only after the visitor submits the correct password. Returning home or refreshing locks the viewer again. If `streamUrl` is cleared, the viewer shows “Walkthrough coming soon.”
+A static, browser-rendered exterior home studio built with React, Vite, TypeScript and Three.js. The landing page opens the studio at `#/demo`; existing `#/simulation` links open the same studio. No Vagon session, cloud GPU, account, or backend is required. The existing demo password screen is retained as a casual access gate on both routes. This static frontend cannot protect the public model files from direct downloads.
 
 ## Develop
 
-Requires Node.js 24 and npm.
+Requires Node.js 24.
 
 ```sh
 npm ci
 npm run dev
-```
-
-```sh
 npm test
 npm run build
 npm run preview
 ```
 
-## Atmosphere
+The house has orbit/pinch/wheel controls, bounded zoom, reset, proposed finishes, saved perspectives, PNG export, fullscreen and self-contained GLB import. Imported models stay on the device. Email export downloads a PNG for the user to attach in their email app; the site does not upload or send it.
 
-Every fresh page load starts in morning light, then cycles through daylight, dusk, and night over 80 seconds. Each scene holds for 3 seconds and blends into the next for 17 seconds. Timing is independent of the visitor’s timezone. The cycle pauses when the tab is hidden and resumes without jumping.
+Daylight uses Blender-baked diffuse irradiance, PBR materials, a matching AgX display transform and glass reflections. Golden hour and Dusk are labeled mood previews with unchanged daylight shadows. Finish edits reuse the original indirect light/reflections. Vegetation and glazing remain raster approximations. Physical phone and other-browser testing is still needed.
 
-Water, tree canopy, and foreground planting move continuously through one WebGL renderer. A lossless foliage matte combines hand-traced regions, explicit stone exclusions, and daylight colour separation. A separate movement-permission channel protects both ends of each displaced sample, so moving leaf detail cannot pull the terrace corner or foreground rocks into the effect. Crossing surface waves and random ambient ripple events keep the pool active without pointer input. Variable gusts drive separate damped springs for canopy branches, shrub stems, and secondary branches; small leaf flutter is layered over coherent sway. Pointer movement affects only the water, adding expanding ripples with at least three times the strength of ambient ripple events. These disturbances decay after departure. Trees and shrubs respond only to the natural wind field. The residence itself remains still. This is an illustrative image effect, not a live model or physically simulated environment.
+## Asset workflow and release boundary
 
-The landing page uses a light, text-side gradient. The viewer keeps the image bright, with the unavailable message in a compact panel instead of darkening the entire frame.
+Blender sources remain separate from this web repository. Only optimized runtime GLBs, surface textures, irradiance, environment lighting and the loading preview are included. The runtime export excludes furniture, decoration, vehicles, source plans, photographs, exact geographic metadata, authoring files and QA evidence. Models served by a website can be downloaded by its visitors.
 
-The pause control stops both lighting and nature motion in the illustrative scene; it does not control the Vagon stream. Reduced-motion preferences disable automatic scene motion. Static images remain available if WebGL is unavailable. Fonts and optimized responsive images are served locally; the interactive walkthrough loads from Vagon.
+`viewer/` contains the editable browser renderer and interface. `browser-demo/index.html` is its Vite entry. `public/browser-demo/release-manifest.json` records the runtime asset hashes. To update assets from a separately verified export:
 
-- Scene timing and blending: `src/lighting.ts`
-- Cycle state, visibility, and reduced motion: `src/useAtmosphere.ts`
-- Nature motion wrapper: `src/NatureMotion.tsx`
-- Mask, wave field, wind, and pointer response: `src/nature/` and `public/images/nature-mask.webp`
-- Branding and stream URL: `src/config.ts`
+```sh
+node tools/prepare-demo.mjs /path/to/verified-runtime-build
+npm run build
+```
 
-## Large displays and footer
+The preparation tool uses an exact allowlist, removes nonessential GLB metadata while preserving the binary payload, and records a fresh manifest. `npm run build` checks the resulting release for unexpected files, private paths/metadata, credentials and remote-renderer URLs. Review newly added assets and generated files before committing.
 
-The interface scales its type, controls, and spacing up to a 3840 × 2160 viewport. The animated canvas supports a native 4K buffer, including a 1920 × 1080 CSS viewport at 2× pixel density. A 4K pixel budget bounds GPU work on larger or denser displays. The current photographic source assets remain 1672 × 941; the 4K layout and canvas do not create additional photographic detail.
+## Hosting
 
-Both routes include a compact copyright footer. Set `copyrightOwner` and an intentionally public `contactEmail` in `src/config.ts`. Until an address is provided, the footer shows “Enquiries · Email coming soon” without a fake email link. The copyright year updates automatically.
-
-## Vagon connection
-
-The supplied public HTTPS embed URL is configured as `streamUrl` in `src/config.ts`. The iframe uses the `vagonFrame` ID and allows microphone, clipboard read/write, encrypted media, and fullscreen, as specified in the supplied embed. Stream availability and any provider-side access or allowed-origin settings are managed in Vagon.
-
-The site password gate prevents accidental stream starts and casual access through this page. It stores a SHA-256 password digest in `streamPasswordHash`, never the plain password, and keeps unlock state only in memory. This is a browser-side convenience gate: the public stream URL and digest can be inspected, and short passwords can be guessed. Enable [Vagon Password Protection](https://docs.vagon.io/streams/configurations/visitor-data-collection) to require a password when someone visits the stream directly.
-
-To change the site password, generate its SHA-256 hex digest locally and replace `streamPasswordHash` in `src/config.ts`, then rebuild and deploy. Do not commit the plain password or include it in a test fixture. Password checking requires HTTPS or localhost.
-
-All frontend configuration is public. Never add API keys, access tokens, signed/private model URLs, client files, or proprietary simulation source to this repository. Any future protected session creation must happen outside this static frontend.
-
-## GitHub Pages
-
-The deployment workflow builds and tests `main`, then publishes `dist` using GitHub Pages Actions. In repository **Settings → Pages**, use **GitHub Actions** as the source. Relative Vite asset paths and hash routing support hosting under `/home-sim-demo/`, including refreshes on the simulation route.
-
-No backend, database, user accounts, or secrets are required.
-
-The demo viewer fills the available dynamic viewport height, with no fixed minimum viewer height. Its compact footer shares the viewport with the viewer. It has no page scroll in portrait or landscape layouts.
-
-## Assets
-
-The four residence scenes are AI-generated fictional architecture, created with the built-in image generation tool. They contain no client plans, actual project models, or confidential business material. Image generation notes are in `ASSETS.md`.
-
-The house favicon is an original SVG. DM Sans and Manrope are locally bundled through Fontsource under their accompanying open font licenses. Lucide icons use the ISC license. Dependency licenses remain in their packages.
-
-## Motion video review
-
-The motion was calibrated with recorded revisions, including targeted concrete-corner and foreground planting checks. See [MOTION_REVIEW.md](MOTION_REVIEW.md) for the checks, references, and local recording workflow.
-
-Rebuild the motion matte with `npm run assets:mask` after editing `tools/nature-regions.svg` or replacing the daylight image. The generator uses the existing Sharp development dependency; no segmentation runs in the visitor’s browser.
-
-## Mobile viewport and footer
-
-The landing page uses the dynamic viewport height for its content and a fixed backdrop sized to the large viewport, so opening or retracting browser controls does not leave an uncovered page strip. `viewport-fit=cover` enables edge-to-edge layout; safe-area padding keeps the header and footer controls clear of device cutouts. The copyright, atmosphere controls, and contact placeholder share one dark footer band, with a compact wrap on phones.
-
-The browser owns its status and address-bar regions. In particular, Safari may fill those regions with its own sampled colour rather than showing the actual photo; the page cannot guarantee image rendering there. See [WebKit’s explanation](https://bugs.webkit.org/show_bug.cgi?id=297779#c23).
-
-For local geometry checks, open `/tools/mobile-review.html?safe=47,0,34,0` after starting Vite. Insets are top, right, bottom, and left in CSS pixels. This fixture simulates safe-area values, not Safari’s browser interface, and is excluded from the production build.
+The GitHub Pages workflow tests and builds `main`, then publishes `dist`. Relative assets and hash routing support hosting under `/home-sim-demo/`. No API keys or secrets belong in this frontend. The landing-page illustration is fictional and separate from the interactive residence; its provenance is in `ASSETS.md`. Locally served font/icon licenses remain in `public/licenses/`.

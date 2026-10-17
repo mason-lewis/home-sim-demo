@@ -1,12 +1,10 @@
+import { DemoAccess } from "./DemoAccess";
 import { useEffect, useState } from "react";
 import {
   ArrowUpRight,
-  ArrowRight,
   ArrowLeft,
   Sun,
   Moon,
-  Maximize2,
-  Minimize2,
   Pause,
   Play,
 } from "lucide-react";
@@ -21,7 +19,6 @@ import "@fontsource/manrope/latin-400.css";
 import "@fontsource/manrope/latin-500.css";
 import "./styles.css";
 import { NatureMotion } from "./NatureMotion";
-import { StreamAccess } from "./StreamAccess";
 
 const asset = (name: string) => `${import.meta.env.BASE_URL}images/${name}`;
 const scenes: Lighting[] = ["morning", "day", "dusk", "night"];
@@ -154,7 +151,7 @@ function Landing({ controls }: { controls: AtmosphereControls }) {
         <header className="main-header">
           <Brand />
           <nav aria-label="Main navigation">
-            <a className="nav-demo" href="#/simulation">
+            <a className="nav-demo" href="#/demo">
               Enter demo <ArrowUpRight aria-hidden="true" size={16} />
             </a>
           </nav>
@@ -168,18 +165,18 @@ function Landing({ controls }: { controls: AtmosphereControls }) {
             <br />
             you have to
             <br />
-            <em>step inside.</em>
+            <em>see for yourself.</em>
           </h1>
           <p className="hero-description">
             Beyond the drawings. Before the build.
             <br />
-            Experience a home from within.
+            Explore a home from every angle.
           </p>
-          <a className="button button-bronze" href="#/simulation">
+          <a className="button button-bronze" href="#/demo">
             Enter the demo <ArrowUpRight aria-hidden="true" size={19} />
           </a>
           <span className="hero-availability">
-            Architectural walkthrough · Illustrative preview
+            Exterior studio · Explore and customize
           </span>
         </div>
         <div className="hero-footer">
@@ -189,136 +186,25 @@ function Landing({ controls }: { controls: AtmosphereControls }) {
     </>
   );
 }
-function Simulation({ controls }: { controls: AtmosphereControls }) {
-  const { atmosphere, paused } = controls;
-  const { lighting } = atmosphere;
-  const [fullscreen, setFullscreen] = useState(false);
-  const [fullscreenError, setFullscreenError] = useState("");
-  const [streamUnlocked, setStreamUnlocked] = useState(false);
-  useEffect(() => {
-    const update = () => setFullscreen(Boolean(document.fullscreenElement));
-    document.addEventListener("fullscreenchange", update);
-    return () => document.removeEventListener("fullscreenchange", update);
-  }, []);
-  const toggleFullscreen = async () => {
-    try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else await document.getElementById("viewer")?.requestFullscreen();
-      setFullscreenError("");
-    } catch {
-      setFullscreenError("Fullscreen is unavailable in this browser.");
-    }
-  };
+function BrowserDemo() {
+  const [frameLoaded, setFrameLoaded] = useState(false);
+  const [unlocked,setUnlocked]=useState(false);
   return (
-    <div className="simulation-page">
-      <header className="simulation-header">
+    <div className="browser-demo-page">
+      <header className="browser-demo-header">
         <Brand />
-        <a className="back-link" href="#/">
-          <ArrowLeft aria-hidden="true" size={16} /> Back to home
-        </a>
+        <span className="browser-demo-label">The exterior studio</span>
+        <a className="back-link" href="#/"><ArrowLeft aria-hidden="true" size={16} /> Back to home</a>
       </header>
-      <main id="main-content" tabIndex={-1} className="simulation-main">
-        <div className="viewer-heading">
-          <div>
-            <p className="eyebrow">THE HILLSIDE RESIDENCE</p>
-            <h1>
-              The <em>walkthrough.</em>
-            </h1>
-          </div>
-          {!streamUnlocked && (
-            <span className="atmosphere-controls">
-              <TimeLabel lighting={lighting} />
-              <MotionControl controls={controls} />
-            </span>
-          )}
-        </div>
-        <section
-          id="viewer"
-          className="viewer"
-          aria-label="Architectural walkthrough viewer"
-        >
-          {siteConfig.streamUrl && streamUnlocked ? (
-            <iframe
-              id="vagonFrame"
-              title="Interactive home walkthrough"
-              src={siteConfig.streamUrl}
-              allow="microphone *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *;"
-              allowFullScreen
-            />
-          ) : siteConfig.streamUrl ? (
-            <>
-              <Scene atmosphere={atmosphere} paused={paused} />
-              <div className="viewer-shade" />
-              <StreamAccess onUnlock={() => setStreamUnlocked(true)} />
-            </>
-          ) : (
-            <>
-              <Scene atmosphere={atmosphere} paused={paused} />
-              <div className="viewer-shade" />
-              <div className="viewer-placeholder">
-                <span className="viewer-mark" aria-hidden="true">
-                  <span />
-                  <span />
-                  <span />
-                </span>
-                <p className="eyebrow">YOUR FIRST VISIT STARTS HERE</p>
-                <h2>
-                  Walkthrough
-                  <br />
-                  <em>coming soon.</em>
-                </h2>
-                <p>
-                  We’re getting the home ready for you.
-                  <br />
-                  The interactive experience will be available here.
-                </p>
-                <a className="text-link" href="#/">
-                  Return home <ArrowRight aria-hidden="true" size={17} />
-                </a>
-              </div>
-            </>
-          )}
-          <div className="viewer-toolbar">
-            <span>
-              <span className="status-dot" />
-              {siteConfig.streamUrl
-                ? streamUnlocked
-                  ? "Interactive walkthrough"
-                  : "Password required"
-                : "Preview / Stream not connected"}
-            </span>
-            {typeof document.documentElement.requestFullscreen ===
-              "function" && (
-              <button
-                onClick={toggleFullscreen}
-                aria-label={fullscreen ? "Exit fullscreen" : "Expand viewer"}
-              >
-                {fullscreen ? (
-                  <Minimize2 aria-hidden="true" size={18} />
-                ) : (
-                  <Maximize2 aria-hidden="true" size={18} />
-                )}
-                <span>{fullscreen ? "Exit fullscreen" : "Expand"}</span>
-              </button>
-            )}
-          </div>
-        </section>
-        {fullscreenError && (
-          <p className="viewer-error" role="status">
-            {fullscreenError}
-          </p>
-        )}
-        <div className="simulation-footer">
-          <div className="viewer-notes">
-            <span>Illustrative concept residence</span>
-            <span>
-              {siteConfig.streamUrl
-                ? "Interactive walkthrough"
-                : "Live walkthrough coming soon"}
-            </span>
-          </div>
-          <SiteFooter />
-        </div>
+      <main id="main-content" tabIndex={-1} className="browser-demo-main" aria-label="Interactive exterior home studio">
+        {unlocked && !frameLoaded && <div className="browser-demo-loading" role="status">Opening your exterior studio…</div>}
+        {unlocked ? <iframe
+          title="Coastal Residence — customize and explore the exterior"
+          src={`${import.meta.env.BASE_URL}browser-demo/index.html`}
+          allow="fullscreen"
+          allowFullScreen
+          onLoad={() => setFrameLoaded(true)}
+        /> : <div className="browser-demo-gate"><img src={`${import.meta.env.BASE_URL}browser-demo/home-preview.webp`} alt="Preview of the exterior model" /><DemoAccess onUnlock={()=>setUnlocked(true)} /></div>}
       </main>
     </div>
   );
@@ -326,20 +212,18 @@ function Simulation({ controls }: { controls: AtmosphereControls }) {
 export function App() {
   const [hash, setHash] = useState(window.location.hash);
   const controls = useAtmosphere();
-  const simulation = hash === "#/simulation";
+  const demo = hash === "#/demo" || hash === "#/simulation";
   useEffect(() => {
     const route = () => setHash(window.location.hash);
     window.addEventListener("hashchange", route);
     return () => window.removeEventListener("hashchange", route);
   }, []);
   useEffect(() => {
-    document.title = simulation
-      ? `The walkthrough — ${siteConfig.name}`
-      : `${siteConfig.name} — From vision to presence`;
+    document.title = demo ? `The exterior studio — ${siteConfig.name}` : `${siteConfig.name} — From vision to presence`;
     if (hash === "#main-content")
       document.getElementById("main-content")?.focus();
     else window.scrollTo(0, 0);
-  }, [hash, simulation]);
+  }, [hash, demo]);
   return (
     <>
       <a
@@ -352,9 +236,7 @@ export function App() {
       >
         Skip to content
       </a>
-      {simulation ? (
-        <Simulation controls={controls} />
-      ) : (
+      {demo ? (<BrowserDemo />) : (
         <Landing controls={controls} />
       )}
     </>

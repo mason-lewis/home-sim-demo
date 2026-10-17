@@ -6,21 +6,26 @@
   "scripts": {
     "assets:mask": "node tools/build-nature-mask.mjs",
     "dev": "vite --host 127.0.0.1",
-    "build": "tsc -b && vite build",
+    "build": "node tools/clean-public-metadata.mjs && tsc -b && vite build && npm run check:release",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node --experimental-strip-types --test src/lighting.test.ts && vitest run"
+    "test": "node --experimental-strip-types --test src/lighting.test.ts && vitest run",
+    "demo:prepare": "node tools/prepare-demo.mjs",
+    "check:release": "node tools/check-release.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
     "@fontsource/manrope": "^5.3.0",
     "lucide-react": "^0.468.0",
+    "meshoptimizer": "0.22.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "three": "0.180.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@types/three": "0.180.0",
     "@vitejs/plugin-react": "^5.0.0",
     "jsdom": "^30.1.3",
     "sharp": "^0.35.5",

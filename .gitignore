@@ -6,3 +6,8 @@ dist/
 .DS_Store
 *.local
 *.tsbuildinfo
+
+# Private local architecture preview. Do not publish without explicit review.
+/.private-demo-manifest.local
+
+/tools/prepare-private-demo.mjs

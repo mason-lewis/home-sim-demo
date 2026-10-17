@@ -1,0 +1,18 @@
+DREAM VIEW exterior studio runtime asset credits
+Grass004 — ambientCG — CC0-1.0
+https://ambientcg.com/a/Grass004
+https://docs.ambientcg.com/license/
+Tree Small 02 — Rico Cilliers — Poly Haven — CC0-1.0
+https://polyhaven.com/a/tree_small_02
+Granular Concrete — Poly Haven — CC0-1.0
+https://polyhaven.com/a/granular_concrete
+Clean Asphalt — Dimitrios Savva — Poly Haven — CC0-1.0
+https://polyhaven.com/a/clean_asphalt
+https://polyhaven.com/license
+Browser derivatives retain PBR detail, with instanced grass and a reduced tree mesh.
+The architectural model and proposed landscape are illustrative. No source plans or reference photographs are distributed.
+Kloofendal 48d Partly Cloudy (Pure Sky) — Greg Zaal (original), Jarod Guest (sky edits) — Poly Haven — CC0-1.0
+https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky
+https://polyhaven.com/license
+The web environment is a reduced-resolution derivative of this HDR image.
+House surface textures are authored procedural PBR materials.

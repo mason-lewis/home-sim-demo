@@ -6,7 +6,7 @@ import { App } from "../src/App";
 import { useAtmosphere } from "../src/useAtmosphere";
 import { siteConfig } from "../src/config";
 
-const configuredHash = siteConfig.streamPasswordHash;
+const configuredHash = siteConfig.demoPasswordHash;
 
 let root: Root;
 let container: HTMLDivElement;
@@ -26,7 +26,7 @@ function Probe() {
 beforeEach(() => {
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
   vi.stubGlobal("crypto", webcrypto);
-  siteConfig.streamPasswordHash = createHash("sha256").update("test-access").digest("hex");
+  siteConfig.demoPasswordHash = createHash("sha256").update("test-access").digest("hex");
   vi.useFakeTimers({ toFake: ["performance", "setInterval", "clearInterval"] });
   reduced = false;
   preferenceListeners = [];
@@ -51,7 +51,7 @@ beforeEach(() => {
   root = createRoot(container);
 });
 afterEach(() => {
-  siteConfig.streamPasswordHash = configuredHash;
+  siteConfig.demoPasswordHash = configuredHash;
   act(() => root.unmount());
   container.remove();
   vi.useRealTimers();
@@ -99,52 +99,27 @@ test("reduced-motion preference freezes the atmosphere and responds to changes",
   advance(20_000);
   expect(container.querySelector("output")?.textContent).toBe("day");
 });
-test("Vagon loads only after a valid password and locks again on a new visit", async () => {
+test("the replacement keeps the existing access gate and never opens Vagon", async () => {
   reduced = true;
-  window.history.replaceState(null, "", "/#/simulation");
+  window.history.replaceState(null, "", "/#/demo");
   act(() => root.render(<App />));
   expect(container.querySelector("iframe")).toBeNull();
-  expect(container.textContent).toContain("Password required");
-  const password = container.querySelector<HTMLInputElement>("#stream-password")!;
-  const form = container.querySelector<HTMLFormElement>(".stream-access-card")!;
-  password.value = "wrong-password";
-  await act(async () => {
-    form.requestSubmit();
-    await new Promise((resolve) => setTimeout(resolve, 20));
-  });
+  const password=container.querySelector<HTMLInputElement>("#stream-password")!;
+  password.value="wrong-password";
+  await act(async()=>{container.querySelector<HTMLFormElement>("form")!.requestSubmit();await new Promise(r=>setTimeout(r,20));});
   expect(container.querySelector("iframe")).toBeNull();
   expect(container.querySelector('[role="alert"]')?.textContent).toContain("didn’t match");
-  password.value = "test-access";
-  await act(async () => {
-    form.requestSubmit();
-    await new Promise((resolve) => setTimeout(resolve, 20));
-  });
-  const frame = container.querySelector<HTMLIFrameElement>("#vagonFrame");
-  expect(frame?.getAttribute("src")).toBe(
-    "https://streams.vagon.io/streams/0356b86d-6c61-4e87-ad9c-c9dba62e8ba2",
-  );
-  expect(frame?.getAttribute("allow")).toBe(
-    "microphone *; clipboard-read *; clipboard-write *; encrypted-media *; fullscreen *;",
-  );
-  expect(frame?.hasAttribute("allowfullscreen")).toBe(true);
-  expect(container.textContent).toContain("Interactive walkthrough");
-  expect(container.querySelector(".viewer-placeholder")).toBeNull();
-  expect(document.title).toBe("The walkthrough — DREAM VIEW");
-  act(() => {
-    window.history.replaceState(null, "", "/#/");
-    window.dispatchEvent(new HashChangeEvent("hashchange"));
-  });
-  expect(container.querySelector("#hero-title")?.textContent).toContain(
-    "step inside.",
-  );
+  password.value="test-access";
+  await act(async()=>{container.querySelector<HTMLFormElement>("form")!.requestSubmit();await new Promise(r=>setTimeout(r,20));});
+  const frame=container.querySelector<HTMLIFrameElement>("iframe")!;
+  expect(frame.getAttribute("src")).toBe("/browser-demo/index.html");
+  expect(frame.getAttribute("allow")).toBe("fullscreen");
+  expect(frame.src).not.toContain("vagon");
+  expect(document.title).toBe("The exterior studio — DREAM VIEW");
+  act(()=>{window.history.replaceState(null,"","/#/");window.dispatchEvent(new HashChangeEvent("hashchange"));});
   expect(container.querySelector("iframe")).toBeNull();
-  expect(container.querySelector(".time-label")?.textContent).toContain(
-    "Morning light",
-  );
-  act(() => {
-    window.history.replaceState(null, "", "/#/simulation");
-    window.dispatchEvent(new HashChangeEvent("hashchange"));
-  });
+  expect(container.querySelector("#hero-title")?.textContent).toContain("see for yourself.");
+  act(()=>{window.history.replaceState(null,"","/#/simulation");window.dispatchEvent(new HashChangeEvent("hashchange"));});
   expect(container.querySelector("iframe")).toBeNull();
   expect(container.querySelector("#stream-password")).not.toBeNull();
 });
