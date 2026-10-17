@@ -11,3 +11,8 @@ dist/
 /.private-demo-manifest.local
 
 /tools/prepare-private-demo.mjs
+
+# Python inspection scripts
+__pycache__/
+*.pyc
+*.local.json

@@ -1,7 +1,7 @@
 {
   "format": 1,
   "scope": "Browser runtime only; no authoring sources or references",
-  "totalBytes": 32639383,
+  "totalBytes": 32121181,
   "files": [
     {
       "file": "home-preview.webp",
@@ -15,8 +15,8 @@
     },
     {
       "file": "models/exterior-home.glb",
-      "bytes": 4152204,
-      "sha256": "0741abb85ed24ad21fc72816f68f24872c489aa26877794a1b995d47580ee774"
+      "bytes": 5084752,
+      "sha256": "2852fb05441fcee9be7a25fc329418be65d98446dc600cc9d34464ace46f2117"
     },
     {
       "file": "models/landscape-site.glb",
@@ -30,8 +30,8 @@
     },
     {
       "file": "lighting/home-ao.webp",
-      "bytes": 2984374,
-      "sha256": "3ca154af1501a542b2c2ff60b6ba16af1b17144fc60fe322baba8cf94902d270"
+      "bytes": 1533624,
+      "sha256": "030e143b00e5a970d0c0f26048592302d57076f28810fc924026a2d7b8b28d4d"
     },
     {
       "file": "lighting/site-ao.webp",

@@ -23,6 +23,21 @@ export function createGlass() {
   return glass;
 }
 
+/** Spend shadow texels on the house; retain upstream space for tree casters. */
+export function fitHouseShadow(sun: THREE.DirectionalLight, bounds: THREE.Box3) {
+  sun.updateMatrixWorld(true); sun.target.updateMatrixWorld(true);
+  sun.shadow.updateMatrices(sun);
+  const projected=new THREE.Box3();
+  for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z]) {
+    projected.expandByPoint(new THREE.Vector3(x,y,z).applyMatrix4(sun.shadow.camera.matrixWorldInverse));
+  }
+  Object.assign(sun.shadow.camera,{
+    left:projected.min.x-2,right:projected.max.x+2,bottom:projected.min.y-2,top:projected.max.y+2,
+    near:Math.max(.1,-projected.max.z-30),far:-projected.min.z+10,
+  });
+  sun.shadow.camera.updateProjectionMatrix();
+}
+
 /** Only local occlusion is baked. The sun and its shadows are evaluated live. */
 export function applyTimeOfDay(mode: TimeOfDay, sun: THREE.DirectionalLight, fill: THREE.HemisphereLight, scene: THREE.Scene, renderer: Pick<THREE.WebGLRenderer, 'toneMappingExposure'>, center: THREE.Vector3) {
   const preset = lightingPresets[mode];
@@ -66,7 +81,7 @@ export function createDaylight(renderer: THREE.WebGLRenderer, scene: THREE.Scene
   const resolution = matchMedia('(max-width:760px)').matches ? 2048 : 4096;
   sun.shadow.mapSize.set(resolution, resolution);
   Object.assign(sun.shadow.camera, {left: -33, right: 33, top: 30, bottom: -30, near: 1, far: 145});
-  sun.shadow.bias = -.00005; sun.shadow.normalBias = .016; sun.shadow.radius = 2.2;
+  sun.shadow.bias = -.00005; sun.shadow.normalBias = .004; sun.shadow.radius = 2.2;
   const fill = new THREE.HemisphereLight();
   scene.add(sun, sun.target, fill);
   const interior = new THREE.Group(); interior.name = 'evening-architectural-lights'; scene.add(interior);
@@ -104,6 +119,7 @@ export function createDaylight(renderer: THREE.WebGLRenderer, scene: THREE.Scene
     const environment = environments.get(mode)!;
     scene.environment = environment.map.texture; scene.environmentRotation.y = environment.rotation;
     applyTimeOfDay(mode, sun, fill, scene, renderer, center);
+    fitHouseShadow(sun,bounds);
     interior.traverse(node => { if (node instanceof THREE.SpotLight) { node.intensity = lightingPresets[mode].interior; node.visible = mode === 'dusk'; } });
     renderer.shadowMap.needsUpdate = true;
     reflection?.dispose(); reflection = reflectionProbe(renderer, scene, glass, environment.sky);

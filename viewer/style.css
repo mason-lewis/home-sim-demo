@@ -199,3 +199,8 @@ dialog textarea { resize: vertical; min-height: 85px; }
 .poster-capture .mood-control, .poster-capture .preview-note { display: none; }
 .poster-capture .viewer:has(.design-panel) .scene,
 .qa-full-canvas .viewer:has(.design-panel) .scene { right: 0; }
+.qa-full-canvas .masthead, .qa-full-canvas .study, .qa-full-canvas .footer,
+.qa-full-canvas .hint, .qa-full-canvas .caption, .qa-full-canvas .design-panel,
+.qa-full-canvas .customize-toggle, .qa-full-canvas .presentation-actions,
+.qa-full-canvas .mood-control, .qa-full-canvas .preview-note,
+.qa-full-canvas #viewer-evidence { display: none; }

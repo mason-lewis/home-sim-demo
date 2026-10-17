@@ -6,7 +6,7 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'meshoptimizer';
 import {installDoors, garageOpenings, type GarageStyle} from '../viewer/doors';
 import {addLandscape, type ViewerSite} from '../viewer/landscape';
-import {applyOcclusion, applyTimeOfDay, lightingPresets} from '../viewer/lighting';
+import {applyOcclusion, applyTimeOfDay, lightingPresets, fitHouseShadow} from '../viewer/lighting';
 import {triangleCenter} from '../viewer/geometry';
 import {createHomeCamera} from '../viewer/camera';
 
@@ -37,6 +37,8 @@ function doorStudio() {
 }
 
 test('one door color reaches entry, interior, patio and both garages while preserving window materials and rail caps', () => {
+  let originalRailTriangles=0;
+  home.traverse(node=>{if(node instanceof THREE.Mesh&&!Array.isArray(node.material)&&node.material.name==='joinery')originalRailTriangles+=node.geometry.index!.count/3;});
   const {house, doors} = doorStudio();
   expect(doors.entryOriginal.length).toBe(2);
   expect(doors.garageOriginal.length).toBe(2);
@@ -55,8 +57,10 @@ test('one door color reaches entry, interior, patio and both garages while prese
       expect((node.material as THREE.MeshStandardMaterial).color.getHexString()).toBe('ffffff');
     }
   });
-  // The source has thirteen 44-face railing caps; none should be repainted.
-  expect(railTriangles).toBe(13*44);
+  // Repairs may subdivide cap faces. All exported non-door joinery must survive
+  // door painting, regardless of its triangulation.
+  expect(originalRailTriangles).toBeGreaterThan(0);
+  expect(railTriangles).toBe(originalRailTriangles);
   expect(windowSurfaces).toBeGreaterThan(0);
 });
 
@@ -152,4 +156,17 @@ test('low street-level orbits stay above grade and outside the house and tree cr
     expect(camera.position.distanceTo(tree.center)).toBeGreaterThanOrEqual(tree.radius+.3);
   }
   view.controls.dispose();
+});
+
+
+test('shadow projection covers every house corner in daytime and low sun',()=>{
+  const bounds=new THREE.Box3().setFromObject(home), sun=new THREE.DirectionalLight();
+  for(const mode of ['day','golden'] as const){
+    applyTimeOfDay(mode,sun,new THREE.HemisphereLight(),new THREE.Scene(),{toneMappingExposure:1},bounds.getCenter(new THREE.Vector3()));
+    fitHouseShadow(sun,bounds);
+    for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z]){
+      const projected=new THREE.Vector3(x,y,z).project(sun.shadow.camera);
+      expect(Math.abs(projected.x)).toBeLessThan(1);expect(Math.abs(projected.y)).toBeLessThan(1);expect(Math.abs(projected.z)).toBeLessThan(1);
+    }
+  }
 });

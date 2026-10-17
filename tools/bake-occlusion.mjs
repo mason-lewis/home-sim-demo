@@ -11,6 +11,7 @@ import {MeshoptDecoder} from 'meshoptimizer';
 import sharp from 'sharp';
 const blender=process.argv[2];
 if(!blender)throw Error('Pass the Blender executable as the first argument.');
+const runtimeRoot=process.argv[3]??'public/browser-demo';
 const temporary=await fs.mkdtemp(path.join(os.tmpdir(),'dream-view-occlusion-'));
 const loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 // AO uses geometry alone. Do not decode or copy source color textures.
@@ -19,7 +20,7 @@ loader.register(parser=>({name:'OCCLUSION_GEOMETRY',loadMaterial:async index=>{
 }}));
 const objects=[];
 for(const [name,atlas]of [['exterior-home','home'],['landscape-site','site']]){
- const bytes=await fs.readFile(`public/browser-demo/models/${name}.glb`);
+ const bytes=await fs.readFile(`${runtimeRoot}/models/${name}.glb`);
  const {scene}=await loader.parseAsync(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.length),'');
  scene.updateMatrixWorld(true);
  scene.traverse(node=>{
@@ -32,11 +33,11 @@ for(const [name,atlas]of [['exterior-home','home'],['landscape-site','site']]){
 const input=path.join(temporary,'geometry.json');
 await fs.writeFile(input,JSON.stringify(objects));
 await new Promise((resolve,reject)=>{
- const child=spawn(blender,['--background','--factory-startup','--python',path.resolve('tools/bake-occlusion.py'),'--',input,temporary],{stdio:'inherit'});
+ const child=spawn(blender,['--background','--factory-startup','--python',path.resolve('tools/bake-occlusion.py'),'--',input,temporary,...(process.argv.includes('--home-only')?['--home-only']:[])],{stdio:'inherit'});
  child.on('error',reject);child.on('exit',code=>code===0?resolve():reject(Error(`Blender exited ${code}`)));
 });
-for(const atlas of ['home','site']){
- await sharp(path.join(temporary,`${atlas}-ao.png`)).removeAlpha().webp({lossless:true}).toFile(`public/browser-demo/lighting/${atlas}-ao.webp`);
+for(const atlas of (process.argv.includes('--home-only')?['home']:['home','site'])){
+ await sharp(path.join(temporary,`${atlas}-ao.png`)).removeAlpha().webp({lossless:true}).toFile(`${runtimeRoot}/lighting/${atlas}-ao.webp`);
 }
 await fs.rm(temporary,{recursive:true,force:true});
 console.log('Baked neutral ambient occlusion. No daylight or sun shadows in the atlases.');

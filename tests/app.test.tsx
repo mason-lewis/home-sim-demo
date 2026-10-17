@@ -99,20 +99,32 @@ test("reduced-motion preference freezes the atmosphere and responds to changes",
   advance(20_000);
   expect(container.querySelector("output")?.textContent).toBe("day");
 });
-test("the replacement keeps the existing access gate and never opens Vagon", async () => {
+test("the studio preloads behind the access gate and keeps the same iframe on unlock", async () => {
   reduced = true;
   window.history.replaceState(null, "", "/#/demo");
   act(() => root.render(<App />));
-  expect(container.querySelector("iframe")).toBeNull();
+  const frame=container.querySelector<HTMLIFrameElement>("iframe")!;
+  expect(frame.getAttribute("src")).toBe("/browser-demo/index.html");
+  expect(frame.classList.contains("browser-demo-preloading")).toBe(true);
+  expect(frame.getAttribute("aria-hidden")).toBe("true");
+  expect(frame.hasAttribute("inert")).toBe(true);
+  expect(frame.tabIndex).toBe(-1);
+  act(() => frame.dispatchEvent(new Event("load")));
   const password=container.querySelector<HTMLInputElement>("#stream-password")!;
   password.value="wrong-password";
   await act(async()=>{container.querySelector<HTMLFormElement>("form")!.requestSubmit();await new Promise(r=>setTimeout(r,20));});
-  expect(container.querySelector("iframe")).toBeNull();
+  expect(container.querySelector("iframe")).toBe(frame);
+  expect(frame.hasAttribute("inert")).toBe(true);
   expect(container.querySelector('[role="alert"]')?.textContent).toContain("didn’t match");
   password.value="test-access";
   await act(async()=>{container.querySelector<HTMLFormElement>("form")!.requestSubmit();await new Promise(r=>setTimeout(r,20));});
-  const frame=container.querySelector<HTMLIFrameElement>("iframe")!;
-  expect(frame.getAttribute("src")).toBe("/browser-demo/index.html");
+  expect(container.querySelector("iframe")).toBe(frame);
+  expect(frame.classList.contains("browser-demo-preloading")).toBe(false);
+  expect(frame.getAttribute("aria-hidden")).toBe("false");
+  expect(frame.hasAttribute("inert")).toBe(false);
+  expect(frame.tabIndex).toBe(0);
+  expect(container.querySelector("#stream-password")).toBeNull();
+  expect(container.querySelector(".browser-demo-loading")).toBeNull();
   expect(frame.getAttribute("allow")).toBe("fullscreen");
   expect(frame.src).not.toContain("vagon");
   expect(document.title).toBe("The exterior studio — DREAM VIEW");
@@ -120,6 +132,24 @@ test("the replacement keeps the existing access gate and never opens Vagon", asy
   expect(container.querySelector("iframe")).toBeNull();
   expect(container.querySelector("#hero-title")?.textContent).toContain("see for yourself.");
   act(()=>{window.history.replaceState(null,"","/#/simulation");window.dispatchEvent(new HashChangeEvent("hashchange"));});
-  expect(container.querySelector("iframe")).toBeNull();
+  const nextFrame=container.querySelector<HTMLIFrameElement>("iframe")!;
+  expect(nextFrame).not.toBe(frame);
+  expect(nextFrame.hasAttribute("inert")).toBe(true);
   expect(container.querySelector("#stream-password")).not.toBeNull();
+});
+
+test("unlocking before the iframe loads retains the loading indicator", async () => {
+  reduced = true;
+  window.history.replaceState(null, "", "/#/demo");
+  act(() => root.render(<App />));
+  const frame = container.querySelector<HTMLIFrameElement>("iframe")!;
+  container.querySelector<HTMLInputElement>("#stream-password")!.value = "test-access";
+  await act(async () => {
+    container.querySelector<HTMLFormElement>("form")!.requestSubmit();
+    await new Promise(resolve => setTimeout(resolve, 20));
+  });
+  expect(container.querySelector("iframe")).toBe(frame);
+  expect(container.querySelector(".browser-demo-loading")?.textContent).toContain("Opening your exterior studio");
+  act(() => frame.dispatchEvent(new Event("load")));
+  expect(container.querySelector(".browser-demo-loading")).toBeNull();
 });

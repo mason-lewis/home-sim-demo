@@ -21,8 +21,9 @@ export function createHomeCamera(camera: PerspectiveCamera, canvas: HTMLCanvasEl
   let startDistance = 0;
   let obstacles: Sphere[] = [];
   let correcting = false;
+  let inspectionMode = false;
   function protectCamera() {
-    if (correcting) return;
+    if (correcting || inspectionMode) return;
     const offset = camera.position.clone().sub(target);
     const direction = offset.clone().normalize();
     let radius = offset.length();
@@ -92,5 +93,7 @@ export function createHomeCamera(camera: PerspectiveCamera, canvas: HTMLCanvasEl
     camera.position.copy(target).add(offset);
     controls.update();
   }
-  return { controls, target, sphere, resize, reset, zoom, setObstacles, get obstacles() { return obstacles; }, get startDistance() { return startDistance; } };
+  return { controls, target, sphere, resize, reset, zoom, setObstacles,
+    setInspectionMode(value:boolean) { inspectionMode=value; },
+    get obstacles() { return obstacles; }, get startDistance() { return startDistance; } };
 }

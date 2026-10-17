@@ -183,7 +183,7 @@ function Landing({ controls }: { controls: AtmosphereControls }) {
 }
 function BrowserDemo({ controls }: { controls: AtmosphereControls }) {
   const [frameLoaded, setFrameLoaded] = useState(false);
-  const [unlocked,setUnlocked]=useState(false);
+  const [unlocked, setUnlocked] = useState(false);
   return (
     <div className="browser-demo-page">
       <header className="browser-demo-header">
@@ -193,13 +193,19 @@ function BrowserDemo({ controls }: { controls: AtmosphereControls }) {
       </header>
       <main id="main-content" tabIndex={-1} className="browser-demo-main" aria-label="Interactive exterior home studio">
         {unlocked && !frameLoaded && <div className="browser-demo-loading" role="status">Opening your exterior studio…</div>}
-        {unlocked ? <iframe
+        {/* Keep the full-size viewer mounted so it can prepare behind the gate. */}
+        <iframe
           title="Coastal Residence — customize and explore the exterior"
           src={`${import.meta.env.BASE_URL}browser-demo/index.html`}
+          className={unlocked ? undefined : "browser-demo-preloading"}
+          aria-hidden={!unlocked}
+          inert={!unlocked}
+          tabIndex={unlocked ? 0 : -1}
           allow="fullscreen"
           allowFullScreen
           onLoad={() => setFrameLoaded(true)}
-        /> : <div className="browser-demo-gate"><Scene atmosphere={controls.atmosphere} paused={controls.paused} /><div className="hero-shade" /><DemoAccess onUnlock={()=>setUnlocked(true)} /></div>}
+        />
+        {!unlocked && <div className="browser-demo-gate"><Scene atmosphere={controls.atmosphere} paused={controls.paused} /><div className="hero-shade" /><DemoAccess onUnlock={() => setUnlocked(true)} /></div>}
       </main>
     </div>
   );

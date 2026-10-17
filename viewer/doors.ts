@@ -15,29 +15,35 @@ export function installDoors(house: THREE.Group, scene: THREE.Scene) {
   house.updateMatrixWorld(true);
   const meshes: THREE.Mesh[] = [];
   house.traverse(node => { if (node instanceof THREE.Mesh && !Array.isArray(node.material)) meshes.push(node); });
-  const source = meshes.find(mesh => (mesh.material as THREE.Material).name === 'joinery')!.material as THREE.MeshStandardMaterial;
+  const source = meshes.find(mesh => (mesh.material as THREE.Material).name === 'door-paint' || (mesh.material as THREE.Material).name === 'joinery')!.material as THREE.MeshStandardMaterial;
   const paint = source.clone(); paint.name = 'all-door-paint';
   const originalMap = source.map;
   const glass = new THREE.MeshPhysicalMaterial({color: '#f2f5ed', roughness: .13, transmission: .86, thickness: .04, ior: 1.5, envMapIntensity: .8});
   glass.name = 'garage-door-glass';
   const metal = new THREE.MeshStandardMaterial({color: '#363b38', metalness: .72, roughness: .3});
   const entryOriginal: THREE.Mesh[] = [], garageOriginal: THREE.Mesh[] = [], colored: THREE.Mesh[] = [];
+  const semanticDoors=meshes.some(mesh=>(mesh.material as THREE.Material).name==='door-paint');
   let doorMembers = 0;
   for (const mesh of meshes) {
     const material = mesh.material as THREE.Material;
-    if (['black', 'glass', 'viewer-thin-glass'].includes(material.name)) {
+    if (['black', 'door-frame', 'glass', 'viewer-thin-glass'].includes(material.name)) {
       const offsets: number[] = [];
       for (let offset = 0; offset < mesh.geometry.index!.count; offset += 3) if (inGarage(triangleCenter(mesh, offset))) offsets.push(offset);
       const part = extractTriangles(mesh, offsets, material.name.includes('glass') ? material : paint);
       if (part) { part.name = 'original-garage-doors'; garageOriginal.push(part); if (!material.name.includes('glass')) colored.push(part); }
     }
-    if (['joinery', 'glass', 'viewer-thin-glass'].includes(material.name)) {
+    if (['joinery', 'door-paint', 'glass', 'viewer-thin-glass'].includes(material.name)) {
       const offsets: number[] = [];
       for (let offset = 0; offset < mesh.geometry.index!.count; offset += 3) if (entryBounds.containsPoint(triangleCenter(mesh, offset))) offsets.push(offset);
-      const part = extractTriangles(mesh, offsets, material.name === 'joinery' ? paint : material);
-      if (part) { part.name = 'original-entry-door'; entryOriginal.push(part); if (material.name === 'joinery') colored.push(part); }
+      const part = extractTriangles(mesh, offsets, ['joinery','door-paint'].includes(material.name) ? paint : material);
+      if (part) { part.name = 'original-entry-door'; entryOriginal.push(part); if (['joinery','door-paint'].includes(material.name)) colored.push(part); }
     }
-    if (!['joinery', 'black'].includes(material.name) || !mesh.geometry.index!.count) continue;
+    if (['door-paint','door-frame'].includes(material.name)) {
+      doorMembers += connectedSurfaces(mesh).length;
+      mesh.material=paint; colored.push(mesh);
+      continue;
+    }
+    if (semanticDoors || !['joinery', 'black'].includes(material.name) || !mesh.geometry.index!.count) continue;
     const offsets = connectedSurfaces(mesh).filter(group => {
       const size = group.bounds.getSize(new THREE.Vector3());
       // The reviewed export uses 108-face bevelled door members; window frames

@@ -8,12 +8,16 @@ import './style.css';
 import {applyOcclusion, createGlass, createDaylight} from './lighting';
 import { addLandscape, type ViewerSite } from './landscape';
 import { customizationShell, installCustomization } from './customize';
+import {installInspection} from './inspection';
 
 const start = performance.now();
-const base = import.meta.env.DEV ? `${import.meta.env.BASE_URL}browser-demo/` : import.meta.env.BASE_URL;
-const asset = (file: string) => `${base}${file}?v=${__DEMO_ASSET_REVISION__}`;
 const params = new URLSearchParams(location.search);
 const qa = params.has('qa') && params.get('qa') !== 'poster';
+const archive=params.get('qaRuntime');
+const base = import.meta.env.DEV && qa && archive?.startsWith('/blender-source.local/') && archive.endsWith('/') && !archive.includes('..')
+  ? archive : import.meta.env.DEV ? `${import.meta.env.BASE_URL}browser-demo/` : import.meta.env.BASE_URL;
+const asset = (file: string) => `${base}${file}?v=${__DEMO_ASSET_REVISION__}`;
+let modelSha256='';
 if(params.has('fullCanvas'))document.body.classList.add('qa-full-canvas');
 if (params.get('qa') === 'poster') document.body.classList.add('poster-capture');
 const icon = (paths: string) => `<svg viewBox="0 0 24 24" aria-hidden="true">${paths}</svg>`;
@@ -54,7 +58,6 @@ let meshCount = 0;
 let materialCount = 0;
 let occludedMeshCount = 0;
 let cameraObstacles: THREE.Sphere[] = [];
-let nextReportTime = 0;
 const frames: number[] = [];
 let previousFrame = 0;
 let interacting = false;
@@ -115,6 +118,7 @@ async function downloadModel() {
     const bytes = new Uint8Array(received);
     let offset = 0;
     for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+    modelSha256=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(value=>value.toString(16).padStart(2,'0')).join('');
     return bytes.buffer;
   } finally { clearTimeout(timer); }
 }
@@ -178,15 +182,14 @@ function render(now: number) {
   report();
 }
 function report() {
-  if (!qa || performance.now() < nextReportTime) return;
-  nextReportTime = performance.now() + 200;
+  if (!qa) return;
   const sorted = [...frames].sort((a, b) => a - b);
   $('viewer-evidence').textContent = JSON.stringify({ state: failed ? 'error' : ready ? 'ready' : 'loading',
     browser: navigator.userAgent, pixels: renderer ? [renderer.domElement.width, renderer.domElement.height] : [],
-    dpr: devicePixelRatio, gpu:gpuInfo, modelBytes, readyMs: Math.round(firstReadyMs), meshes: meshCount, materials: materialCount,
+    dpr: devicePixelRatio, gpu:gpuInfo, modelBytes, modelSha256, assetRevision:__DEMO_ASSET_REVISION__, readyMs: Math.round(firstReadyMs), meshes: meshCount, materials: materialCount,
     storedTriangles: geometryTriangles, calls: renderer?.info.render.calls, renderedTriangles: renderer?.info.render.triangles,
     framesRendered, framesMeasured: frames.length, p95Ms: sorted.length ? sorted[Math.floor(sorted.length * .95)] : null,
-    camera: camera?.position.toArray(), target: view?.target.toArray(), radius: view?.controls.getDistance(),
+    camera: camera?.position.toArray(), cameraFov:camera?.fov, cameraViewOffset:camera?.view, target: view?.controls.target.toArray(), radius: view?.controls.getDistance(),
     minRadius: view?.controls.minDistance, maxRadius: view?.controls.maxDistance,
     architecturePackage: sceneConfig?.architecturePackage, contactOcclusionMeshes: occludedMeshCount, landscape: landscapeStats, sceneTotals,
     studio:studioEvidence, timeOfDay:daylight?.current, tests: testResults, resources: performance.getEntriesByType('resource').map(entry => ({url: entry.name, bytes: (entry as PerformanceResourceTiming).decodedBodySize, durationMs: entry.duration})) }, null, 1);
@@ -269,6 +272,7 @@ async function launch() {
       timeOfDay:mode=>daylight!.set(mode),
     });
     daylight=createDaylight(renderer,scene,homeBounds,glassMaterial,hdr);
+    if(qa)installInspection(scene,camera,renderer,view,requestRender);
     studioEvidence={state:studio.state,doorMembers:studio.doors.doorMembers,entryParts:studio.doors.entryOriginal.length,garageParts:studio.doors.garageOriginal.length,garageCount:studio.doors.garageCount};
     const reset = () => { view!.reset(); document.querySelectorAll<HTMLElement>('[data-perspective]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.perspective==='0'))); requestRender(); $('live-status').textContent = 'Starting view restored.'; };
     $('reset-view').addEventListener('click', reset);
@@ -314,7 +318,7 @@ async function launch() {
     if (['exercise','benchmark'].includes(params.get('qa') ?? '')) {
       const { exerciseViewer } = await import('./exercise');
       testResults = await exerciseViewer({ camera, view, canvas, house, homeBounds, renderer, scene, requestRender }, {sustained:params.get('qa')==='benchmark',onProgress:progress=>{testResults=progress;report();}});
-      nextReportTime = 0;report();
+      report();
     }
   } catch (error) {
     clearTimeout(loadingTimeout);
