@@ -34,6 +34,20 @@ The lossless `nature-mask.webp` is generated from the fictional daylight image a
 
 The 3D studio is a separately authored architectural model, not the fictional landing-page illustration. Only optimized runtime derivatives are included. Authoring models, architectural plans, reference photos and private QA evidence are excluded. The viewer keeps the exterior shell and basic structure, with no furniture, vehicles or decorations. Landscaping and proposed finish choices are illustrative.
 
-Runtime material sources: ambientCG Grass004 (ambientCG, CC0, https://ambientcg.com/a/Grass004, license https://docs.ambientcg.com/license/); Poly Haven Tree Small 02 (Rico Cilliers), Granular Concrete, Clean Asphalt (Dimitrios Savva), all CC0, https://polyhaven.com/license. See public/licenses/exterior-assets.txt. Original download records and derivative hashes are retained in the separate authoring project.
+Runtime material sources: ambientCG Grass004 (ambientCG, CC0, https://ambientcg.com/a/Grass004, license https://docs.ambientcg.com/license/); Poly Haven Jacaranda Tree (Rico Cilliers, with guidance by Rob Tuytel), Granular Concrete, Clean Asphalt (Dimitrios Savva), all CC0, https://polyhaven.com/license. See public/licenses/exterior-assets.txt. Original download records and derivative hashes are retained in the separate authoring project.
 
 Environment lighting: Kloofendal 48d Partly Cloudy (Pure Sky), Greg Zaal and Jarod Guest, Poly Haven, CC0, https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky. House surface textures are authored procedural PBR materials. Three.js and meshoptimizer licenses are retained in public/licenses/.
+
+### Landscape and lighting update
+
+The retained tree placements use a web derivative of [Jacaranda Tree](https://polyhaven.com/a/jacaranda_tree), by Rico Cilliers with guidance by Rob Tuytel, under [CC0](https://polyhaven.com/license). The public derivative retains 360,000 leaf triangles, 45,000 branch triangles and 18,000 trunk triangles. Leaf cutout alpha is retained. Normal/UV precision is reduced below visible pixel scale and the GLB uses meshopt compression; the catalog source files are excluded.
+
+To reproduce the tree derivative, download the official 2K glTF and its included buffers/textures from `https://api.polyhaven.com/files/jacaranda_tree`, plus the 2K leaves alpha PNG. In a temporary source folder, combine the leaf diffuse RGB and alpha into `textures/leaves-rgba.png`, then run:
+
+```sh
+/path/to/Blender --background --factory-startup --python tools/prepare-tree.py -- /temporary/source/jacaranda_tree_2k.gltf /temporary/tree-web.glb
+node tools/pack-tree.mjs /temporary/tree-web.glb
+node tools/refresh-demo-manifest.mjs
+```
+
+The architectural geometry is unchanged. The driveway beyond the far street shoulder is reclassified as lawn at runtime. Grass uses eight short curved blades per spatially batched patch on desktop and five on narrow screens, photographic turf, restrained color variation and slight mowing variation. Daylight, golden hour and dusk use real-time sun/sky and shadow maps. Neutral contact-occlusion atlases are baked from the reviewed architectural/site GLBs with `tools/bake-occlusion.mjs`; they contain no directional daylight shadows.

@@ -16,13 +16,13 @@ export function createHomeCamera(camera: PerspectiveCamera, canvas: HTMLCanvasEl
   controls.rotateSpeed = .65;
   controls.zoomSpeed = .8;
   controls.minPolarAngle = .22;
-  controls.maxPolarAngle = Math.PI / 2 - .08;
+  controls.maxPolarAngle = Math.PI / 2 + .22;
   controls.minDistance = sphere.radius + 1.2;
   let startDistance = 0;
   let obstacles: Sphere[] = [];
   let correcting = false;
   function protectCamera() {
-    if (correcting || !obstacles.length) return;
+    if (correcting) return;
     const offset = camera.position.clone().sub(target);
     const direction = offset.clone().normalize();
     let radius = offset.length();
@@ -34,9 +34,23 @@ export function createHomeCamera(camera: PerspectiveCamera, canvas: HTMLCanvasEl
       if (along <= 0 || perpendicularSq >= clearance * clearance) continue;
       radius = Math.max(radius, along + Math.sqrt(clearance * clearance - perpendicularSq));
     }
-    if (radius > offset.length() + .0001) {
+    const protectedPosition=target.clone().addScaledVector(direction,radius);
+    protectedPosition.y=Math.max(protectedPosition.y,bounds.min.y+1.6);
+    // A low photographic view still stays above grade and outside tree crowns.
+    // Resolve canopy clearance horizontally after clamping the eye height.
+    for(let pass=0;pass<2;pass++)for(const obstacle of obstacles){
+      const clearance=obstacle.radius+.35,dy=protectedPosition.y-obstacle.center.y;
+      if(Math.abs(dy)>=clearance)continue;
+      const delta=new Vector3().subVectors(protectedPosition,obstacle.center);delta.y=0;
+      const required=Math.sqrt(clearance*clearance-dy*dy);
+      if(delta.length()<required){
+        if(delta.lengthSq()<.0001)delta.set(0,0,1);
+        delta.setLength(required);protectedPosition.x=obstacle.center.x+delta.x;protectedPosition.z=obstacle.center.z+delta.z;
+      }
+    }
+    if (camera.position.distanceToSquared(protectedPosition) > .00000001) {
       correcting = true;
-      camera.position.copy(target).addScaledVector(direction, radius);
+      camera.position.copy(protectedPosition);
       controls.update();
       correcting = false;
     }

@@ -1,28 +1,11 @@
 import * as THREE from 'three';
 import type { createHomeCamera } from './camera';
-import type {LightmapProbes} from './landscape';
-interface Viewer {camera:THREE.PerspectiveCamera;view:ReturnType<typeof createHomeCamera>;canvas:HTMLCanvasElement;house:THREE.Group;homeBounds:THREE.Box3;renderer:THREE.WebGLRenderer;scene:THREE.Scene;requestRender:()=>void;lightmaps:{texture:THREE.Texture;probes:LightmapProbes}[]}
+interface Viewer {camera:THREE.PerspectiveCamera;view:ReturnType<typeof createHomeCamera>;canvas:HTMLCanvasElement;house:THREE.Group;homeBounds:THREE.Box3;renderer:THREE.WebGLRenderer;scene:THREE.Scene;requestRender:()=>void}
 /** Development-only browser integration checks. Exercises the real OrbitControls
  * listeners with synthetic mouse/touch events. Hardware touch still needs testing. */
-export async function exerciseViewer({ camera, view, canvas, homeBounds, renderer, requestRender, lightmaps, scene }: Viewer, options: {sustained?:boolean;onProgress?:(progress:unknown)=>void} = {}) {
+export async function exerciseViewer({ camera, view, canvas, homeBounds, renderer, requestRender, scene }: Viewer, options: {sustained?:boolean;onProgress?:(progress:unknown)=>void} = {}) {
  const results: {name:string;passed:boolean;detail?:unknown}[]=[];
  const check=(name:string,passed:boolean,detail?:unknown)=>results.push({name,passed,detail});
- // Read back known numeric RGBA payloads after actual browser decode/upload.
- // RGBM's low alpha must never be treated as visual image transparency.
- const probeTarget=new THREE.WebGLRenderTarget(1,1),probeScene=new THREE.Scene();
- const probeMaterial=new THREE.ShaderMaterial({toneMapped:false,depthTest:false,depthWrite:false,
-  uniforms:{payload:{value:null},coordinate:{value:new THREE.Vector2()}},
-  vertexShader:'void main(){gl_Position=vec4(position.xy,0.0,1.0);}',
-  fragmentShader:'uniform sampler2D payload;uniform vec2 coordinate;void main(){gl_FragColor=texture2D(payload,coordinate);}'});
- const probeQuad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),probeMaterial);probeQuad.frustumCulled=false;probeScene.add(probeQuad);
- const oldTarget=renderer.getRenderTarget();const bytes=new Uint8Array(4);let maxDelta=0,probeCount=0;
- for(const {texture,probes} of lightmaps)for(const sample of probes.samples){
-  probeMaterial.uniforms.payload.value=texture;probeMaterial.uniforms.coordinate.value.set((sample.x+.5)/probes.width,(sample.y+.5)/probes.height);
-  renderer.setRenderTarget(probeTarget);renderer.render(probeScene,new THREE.Camera());renderer.readRenderTargetPixels(probeTarget,0,0,1,1,bytes);
-  for(let c=0;c<4;c++)maxDelta=Math.max(maxDelta,Math.abs(bytes[c]-sample.rgba[c]));probeCount++;
- }
- renderer.setRenderTarget(oldTarget);probeTarget.dispose();probeMaterial.dispose();probeQuad.geometry.dispose();
- check('RGBM browser decode/upload preserves numeric lightmap payload',probeCount===16&&maxDelta<=1,{probeCount,maxChannelDelta:maxDelta});
  const next=()=>new Promise<void>(resolve=>requestAnimationFrame(()=>resolve()));
  const start=camera.position.clone();
  const target=view.controls.target.clone();
@@ -66,10 +49,11 @@ export async function exerciseViewer({ camera, view, canvas, homeBounds, rendere
  const originalColors=new Map<THREE.MeshStandardMaterial,THREE.Color>();
  scene.traverse(node=>{if(node instanceof THREE.Mesh)for(const m of Array.isArray(node.material)?node.material:[node.material])if(m instanceof THREE.MeshStandardMaterial)originalColors.set(m,m.color.clone());});
  for(const button of finishButtons){button.click();if(button.getAttribute('aria-pressed')!=='true')throw Error('Finish selection did not update');}
- check('All 28 Dreamview finish options select successfully',finishButtons.length===28);
+ check('All finish options select successfully',finishButtons.length===34,{options:finishButtons.length});
  document.getElementById('reset-finishes')!.click();
  check('Reset finishes restores original material colors', [...originalColors].every(([m,c])=>m.color.equals(c)));
  check('Reset finishes restores original entry geometry',scene.getObjectByName('proposed-entry-door')?.visible===false&&scene.getObjectsByProperty('name','original-entry-door').every(n=>n.visible));
+ check('Reset restores both original garage doors',scene.getObjectByName('proposed-garage-doors')?.visible===false&&scene.getObjectsByProperty('name','original-garage-doors').every(n=>n.visible));
  // Drive the real on-demand render loop once per animation frame. A direct
  // extra renderer.render() here would double the measured production workload.
  async function orbitFrame(theta:number,polar=1.2,radius=view.startDistance) {

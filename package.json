@@ -6,7 +6,7 @@
   "scripts": {
     "assets:mask": "node tools/build-nature-mask.mjs",
     "dev": "vite --host 127.0.0.1",
-    "build": "node tools/clean-public-metadata.mjs && tsc -b && vite build && npm run check:release",
+    "build": "node tools/clean-public-metadata.mjs && tsc -b && vite build && node tools/clean-public-metadata.mjs && npm run check:release",
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --experimental-strip-types --test src/lighting.test.ts && vitest run",
     "demo:prepare": "node tools/prepare-demo.mjs",

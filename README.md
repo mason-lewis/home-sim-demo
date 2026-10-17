@@ -14,13 +14,13 @@ npm run build
 npm run preview
 ```
 
-The house has orbit/pinch/wheel controls, bounded zoom, reset, proposed finishes, saved perspectives, PNG export, fullscreen and self-contained GLB import. Imported models stay on the device. Email export downloads a PNG for the user to attach in their email app; the site does not upload or send it.
+The house has orbit/pinch/wheel controls, bounded zoom, reset, proposed finishes, saved perspectives (including an eye-level Street view), PNG export and fullscreen. Entry, interior, patio and garage doors share one color control; each garage style applies to both openings. Email export downloads a PNG for the user to attach in their email app; the site does not upload or send it.
 
-Daylight uses Blender-baked diffuse irradiance, PBR materials, a matching AgX display transform and glass reflections. Golden hour and Dusk are labeled mood previews with unchanged daylight shadows. Finish edits reuse the original indirect light/reflections. Vegetation and glazing remain raster approximations. Physical phone and other-browser testing is still needed.
+Daylight, golden hour and dusk use live sun/sky illumination, regenerated glass reflections and moving shadow maps. Dusk turns on warm architectural lights. Blender-baked neutral ambient occlusion adds contact detail without preserving midday shadows. AgX tone mapping keeps bright materials and sky reflections within display range. Grass uses dense spatial batches of short blades over photographic turf; foliage uses alpha-tested textured leaves with thin-leaf backlighting. Physical phone and other-browser testing is still needed.
 
 ## Asset workflow and release boundary
 
-Blender sources remain separate from this web repository. Only optimized runtime GLBs, surface textures, irradiance, environment lighting and the loading preview are included. The runtime export excludes furniture, decoration, vehicles, source plans, photographs, exact geographic metadata, authoring files and QA evidence. Models served by a website can be downloaded by its visitors.
+Blender sources remain separate from this web repository. Only optimized runtime GLBs, surface textures, ambient occlusion, environment lighting and the loading preview are included. The runtime export excludes furniture, decoration, vehicles, source plans, photographs, exact geographic metadata, authoring files and QA evidence. Models served by a website can be downloaded by its visitors.
 
 `viewer/` contains the editable browser renderer and interface. `browser-demo/index.html` is its Vite entry. `public/browser-demo/release-manifest.json` records the runtime asset hashes. To update assets from a separately verified export:
 
@@ -30,6 +30,15 @@ npm run build
 ```
 
 The preparation tool uses an exact allowlist, removes nonessential GLB metadata while preserving the binary payload, and records a fresh manifest. `npm run build` checks the resulting release for unexpected files, private paths/metadata, credentials and remote-renderer URLs. Review newly added assets and generated files before committing.
+
+Neutral AO atlases can be reproduced from the reviewed GLBs alone:
+
+```sh
+node tools/bake-occlusion.mjs /path/to/Blender
+node tools/refresh-demo-manifest.mjs
+```
+
+No source plans or private Blender files are needed. The bake writes only the two neutral AO textures into the runtime folder. Tree preparation is documented in `ASSETS.md`.
 
 ## Hosting
 

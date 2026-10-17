@@ -1,11 +1,12 @@
 /** Export only reviewed browser runtime assets. Original authoring files stay separate. */
 import fs from 'node:fs/promises';
+import {runtimeAssets} from './runtime-assets.mjs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 const source=process.argv[2];
 if(!source)throw Error('Usage: node tools/prepare-demo.mjs /path/to/verified-runtime-build');
 const target=path.resolve('public/browser-demo');
-const allowed=['home-preview.webp','viewer-scene.json','models/exterior-home.glb','models/landscape-site.glb','models/landscape-tree.glb','lighting/home-irradiance.webp','lighting/site-irradiance.webp','lighting/blender-agx.png','environments/coastal-sky-512.hdr'];
+const allowed=runtimeAssets;
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const forbidden=/\/Users\/|\/workspace\/|\.blend["']|\.pdf\b|references\/source|architecture\/revisions|\b(?:password|secret|access_token|api_key)\s*[=:]/i;
 function sanitizeGlb(bytes){

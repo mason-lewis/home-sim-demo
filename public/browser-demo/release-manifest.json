@@ -1,18 +1,17 @@
 {
   "format": 1,
   "scope": "Browser runtime only; no authoring sources or references",
-  "glbBinaryPayloadPreserved": true,
-  "totalBytes": 31605119,
+  "totalBytes": 32639383,
   "files": [
     {
       "file": "home-preview.webp",
-      "bytes": 62160,
-      "sha256": "ee369aa823e5ca4938fe0c1f3b4bfda6a532b63e8dc857a8d490db6dd5548f5f"
+      "bytes": 65186,
+      "sha256": "e54606a08821bce0c9f6db73df910e064459941fe29ac1385c95357a551853ca"
     },
     {
       "file": "viewer-scene.json",
-      "bytes": 148361,
-      "sha256": "3af9692d120be13eca47c6e91b5b64f8ccd50176fea8f0c589bd834fb90f16f6"
+      "bytes": 147562,
+      "sha256": "ff6b5d7a74ed0ac6ba76733e01f011ca77a5dba9e5e1960d07e1e070da0607a4"
     },
     {
       "file": "models/exterior-home.glb",
@@ -26,23 +25,18 @@
     },
     {
       "file": "models/landscape-tree.glb",
-      "bytes": 11473024,
-      "sha256": "0e6380e5a681b750c93c241ac59eb922cf60dcdb462ced6080809e584882ab30"
+      "bytes": 18297348,
+      "sha256": "d1d42fcbe9be1ccf10d9369a00b0c03dc0fd79f8ed1fabd559db24b31770bcac"
     },
     {
-      "file": "lighting/home-irradiance.webp",
-      "bytes": 7738686,
-      "sha256": "2c47379b1b62fc15401dca02fa37e6e050a3af1c2d496e7adb19a168ce56b4d4"
+      "file": "lighting/home-ao.webp",
+      "bytes": 2984374,
+      "sha256": "3ca154af1501a542b2c2ff60b6ba16af1b17144fc60fe322baba8cf94902d270"
     },
     {
-      "file": "lighting/site-irradiance.webp",
-      "bytes": 1195044,
-      "sha256": "bcba54693d838823d9205706e258934e2a5b4ab7f2023177e24156956a6193ea"
-    },
-    {
-      "file": "lighting/blender-agx.png",
-      "bytes": 88857,
-      "sha256": "76d7c11427e316ed3fbf5b3f5a2be8d817108f55e91aa5e0c18147e32405fdbc"
+      "file": "lighting/site-ao.webp",
+      "bytes": 245926,
+      "sha256": "687c036abd374b64fe2e6f0090188d2ada34f6cc2f0bfbda83b00267a179243d"
     },
     {
       "file": "environments/coastal-sky-512.hdr",

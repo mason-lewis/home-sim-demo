@@ -1,10 +1,11 @@
 import fs from 'node:fs/promises';
+import {runtimeAssets} from './runtime-assets.mjs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 const hash=b=>createHash('sha256').update(b).digest('hex');
 const manifest=JSON.parse(await fs.readFile('public/browser-demo/release-manifest.json','utf8'));
-const expectedRuntime=['home-preview.webp','viewer-scene.json','models/exterior-home.glb','models/landscape-site.glb','models/landscape-tree.glb','lighting/home-irradiance.webp','lighting/site-irradiance.webp','lighting/blender-agx.png','environments/coastal-sky-512.hdr'];
+const expectedRuntime=runtimeAssets;
 assert.deepEqual(manifest.files.map(f=>f.file).sort(),[...expectedRuntime].sort(),'Runtime allowlist changed');
 const allowed=new Set([...expectedRuntime,'release-manifest.json']);
 const allowedBuild=new Set(['index.html','browser-demo/index.html','favicon.svg',...Array.from(allowed,f=>'browser-demo/'+f),'images/nature-mask.webp',...['morning','day','dusk','night'].flatMap(time=>['images/residence-'+time+'.webp','images/residence-'+time+'-mobile.webp']),...['dm-sans','lucide','manrope','exterior-assets','three','meshoptimizer'].map(name=>'licenses/'+name+'.txt')]);
